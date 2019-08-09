@@ -1,0 +1,27 @@
+{
+  "name": "template-discord-bot",
+  "version": "0.0.1",
+  "description": "A template for creating Discord bots",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "discord.js": "^11.5.1",
+    "dotenv": "^8.0.0",
+    "node": "^12.7.0"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/template-discord-bot"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "node",
+    "glitch",
+    "express"
+  ]
+}
