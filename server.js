@@ -12,7 +12,7 @@ for (var entry in parsed) {
   process.env[entry] = parsed[entry];
 }
 
-const botToken = process.env.BOT_TOKEN;
+const botToken = "NTUxMTk0OTE4ODUzNDEwODE3.XVcLIQ.YymyvDzO2q0CAY-rOlBGd5LRFH0";
 
 //keepalive system. DO NOT TOUCH
 const http = require('http');
@@ -264,6 +264,13 @@ bot.on("guildMemberAdd", function(member) {
 
 /* disabled codes) */
 
+	
+	if (console.error)
+		const error = [
+			 ;
+		let randVal = wild[Math.floor(Math.random() * wild.length)];
+		msg.channel.send(randVal);
+	}
 
 
 
@@ -273,4 +280,4 @@ bot.on("guildMemberAdd", function(member) {
 // It will be an error or continious refresh loop, consider this part of the code that keeps the bot alive
 // Though you will still need an uptime robot in order to truely keep the bot alive
 // This is NOT my code, the code is directly from this page: https://anidiotsguide_old.git
-bot.login(botToken); })})
+bot.login(botToken);})})
