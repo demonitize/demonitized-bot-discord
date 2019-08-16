@@ -262,7 +262,6 @@ bot.on("guildMemberAdd", function(member) {
                     } 
     
 
-/* disabled codes) */
 
 	
 	if (console.error)
@@ -272,6 +271,7 @@ bot.on("guildMemberAdd", function(member) {
 		msg.channel.send(randVal);
 	}
 
+/* disabled codes) */
 
 
          // End of bot.on('message')
