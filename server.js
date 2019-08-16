@@ -260,17 +260,7 @@ bot.on("guildMemberAdd", function(member) {
     , 5000)
 }});
                     } 
-    
-
-
-	
-	if (console.error)
-		const error = [
-			 ;
-		let randVal = wild[Math.floor(Math.random() * wild.length)];
-		msg.channel.send(randVal);
-	}
-
+   
 /* disabled codes) */
 
 
