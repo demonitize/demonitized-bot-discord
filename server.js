@@ -221,7 +221,7 @@ bot.on('message', msg => {
   //HED CODE
   
 	bot.on("ready", () => {
-  const channel = bot.channels.get("mychannelid");
+  const channel = bot.channels.get("603761576683634713");
   if (!channel) return console.error("The channel does not exist!");
   channel.join().then(connection => {
     // Yay, it worked!
