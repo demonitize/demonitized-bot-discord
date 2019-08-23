@@ -12,7 +12,7 @@ for (var entry in parsed) {
   process.env[entry] = parsed[entry];
 }
 
-const botToken = botToken;
+const botToken = process.BOT_TOKEN;
 
 //keepalive system. DO NOT TOUCH
 const http = require('http');
