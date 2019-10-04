@@ -34,10 +34,6 @@ app.get("/", (request, response) => {
 	console.log(Date.now() + " Ping Received");
 	response.sendStatus(200);
 });
-app.listen(process.env.PORT);
-setInterval(() => {
-	http.get(`http://${process.env.PROJECT_DOMAIN}.glitch.me/`);
-}, 280000);
 
 //i just found a keepalive
 //the bot will never sleep again
