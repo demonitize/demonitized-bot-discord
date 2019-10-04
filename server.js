@@ -290,4 +290,4 @@ bot.on("guildMemberAdd", function(member) {
 // It will be an error or continious refresh loop, consider this part of the code that keeps the bot alive
 // Though you will still need an uptime robot in order to truely keep the bot alive
 // This is NOT my code, the code is directly from this page: https://anidiotsguide_old.git
-bot.login(botToken); })})
+bot.login('NTUxMTk0OTE4ODUzNDEwODE3.XZe_1g.u7v6fXpERtq4t5hbaFMSDJSNEqo'); })})
