@@ -6,6 +6,18 @@ const discord = require('discord.js');
 const bot = new discord.Client();
 const dotenv = require('dotenv');
 
+//mongoDB connection
+
+const MongoClient = require('mongodb').MongoClient;
+const uri = "mongodb+srv://<username>:<password>@discordbotcreatorsstorage-njwdx.azure.mongodb.net/admin?retryWrites=true&w=majority";
+const client = new MongoClient(uri, { useNewUrlParser: true });
+client.connect(err => {
+  const collection = client.db("test").collection("devices");
+  // perform actions on the collection object
+  client.close();
+});
+
+
 // Load from the .env file
 var parsed = dotenv.config().parsed;
 for (var entry in parsed) {
