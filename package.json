@@ -16,12 +16,12 @@
     "node": "*"
   },
   "repository": {
-    "url": "https://glitch.com/edit/#!/template-discord-bot"
+    "url": "https://glitch.com/edit/#!/demonitized-bot"
   },
   "license": "Apache-2.0",
   "keywords": [
     "node",
-    "glitch",
+    "discord",
     "express"
   ]
 }
