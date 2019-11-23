@@ -1,5 +1,6 @@
 //Thanks for downloading my Command Handler.
 console.log("Modified by Doug#1337")
+console.log("Made for DEMONITIZED BOT")
 
 const fs = require('fs');
 const Discord = require('discord.js');
