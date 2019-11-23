@@ -3,15 +3,15 @@ console.log("Modified by Doug#1337")
 
 const fs = require('fs');
 const Discord = require('discord.js');
-const client = new Discord.Client();
+const bot = new Discord.Client();
 const {token, prefix, defaultCooldownInMinutes} = require('./config.json');
-client.commands = new Discord.Collection();
+bot.commands = new Discord.Collection();
 var arrayOfCommands = [];
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
+    bot.commands.set(command.name, command);
     arrayOfCommands.push({description: command.description, syntax: command.syntax})
 }
 const cooldowns = new Discord.Collection();
@@ -19,11 +19,11 @@ const cooldowns = new Discord.Collection();
 exports.exportArray = arrayOfCommands;
 
 
-client.on('message', msg =>{
+bot.on('message', msg =>{
     if (!msg.content.startsWith(prefix) || msg.author.bot) return;
     const args = msg.content.slice(prefix.length).split(" ");
     const commandName = args.shift().toLowerCase();
-    if (!client.commands.has(commandName)){
+    if (!bot.commands.has(commandName)){
         msg.channel.send({embed : {
             fields: [{
                 name: "Error!",
@@ -32,7 +32,7 @@ client.on('message', msg =>{
         }});
         return;
     }
-    const command = client.commands.get(commandName);
+    const command = bot.commands.get(commandName);
     if(command.args && !args.length || command.args && args.length < command.numOfArgs && !command.argsExact || command.args && args.length !== command.numOfArgs && command.argsExact) {
         return msg.channel.send({embed: {
             fields: [{
@@ -97,4 +97,4 @@ client.on('message', msg =>{
     command.execute(msg, args)
 })
 
-client.login(token);
+bot.login(token);
