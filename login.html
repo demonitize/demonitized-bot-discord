@@ -1,10 +1,9 @@
 <html>
 	<head>
-		<a href="https://discordapp.com/api/oauth2/authorize?client_id=551194918853410817&redirect_uri=https%3A%2F%2Fdexterateed.github.io%2Fdemonitized.github.io%2F&response_type=code&scope=identify%20email%20guilds">Log In with discord</a>
 		<script>
 		localStorage.setItem("client_id", "");
 		localStorage.setItem("client_secret", "");
-		let params = 'scrollbars=no,resizable=no,status=no,location=no,toolbar=no,menubar=no,width=23,height=80,left=0,top=0';
+		let params = 'scrollbars=no,resizable=no,status=no,location=yes,toolbar=no,menubar=no,width=23,height=80,left=0,top=0';
 
 </script>
 	</head>
@@ -23,6 +22,6 @@ text-align:    center;
 text-shadow:   3px 3px #000000;
 	}
 	</style>
-	<button class="connect">Connect to Discord</button>
+	<button class="connect" onclick='javascript:window.open("https://discordapp.com/api/oauth2/authorize?client_id=551194918853410817&redirect_uri=https%3A%2F%2Fdexterateed.github.io%2Fdemonitized.github.io%2F&response_type=code&scope=identify%20email%20guilds", "DEMONITIZED BOT", params)'>Connect to Discord</button>
 	</body>
 </html>
