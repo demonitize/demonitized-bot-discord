@@ -8,7 +8,7 @@ http.createServer((req, res) => {
 
 	if (req.url === '/') {
 		responseCode = 200;
-		content = fs.readFileSync('./index.html');
+		content = fs.readFileSync('./landing.html');
 	}
 
 	res.writeHead(responseCode, {
