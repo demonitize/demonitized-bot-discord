@@ -1,6 +1,6 @@
 const http = require('http');
 const fs = require('fs');
-const port = 53134;
+const port = 80;
 
 http.createServer((req, res) => {
 	let responseCode = 404;
