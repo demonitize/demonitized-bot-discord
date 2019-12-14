@@ -21,10 +21,10 @@ http.createServer((req, res) => {
 	.listen(port);
 
 
-//-------------
+// -------------
 
 
-//Thanks for downloading my Command Handler.
+// Thanks for downloading my Command Handler.
 console.log("Modified by Doug#1337")
 console.log("Made for DEMONITIZED BOT")
 
