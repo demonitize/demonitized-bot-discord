@@ -9,8 +9,57 @@
 	</head>
 	<body>
 		
-			<a id="login" class="connect" style="display: none;" href="https://discordapp.com/api/oauth2/authorize?client_id=551194918853410817&redirect_uri=https%3A%2F%2Fdexterateed.github.io%2Fdemonitized.github.io%2Flogin.html&response_type=code&scope=identify%20email%20guilds">Connect to Discord</a>
-	<script>
+		<a id="loginDiscord" class="connect" style="display: none;" href="https://discordapp.com/api/oauth2/authorize?client_id=551194918853410817&redirect_uri=https%3A%2F%2Fdexterateed.github.io%2Fdemonitized.github.io%2Flogin.html&response_type=code&scope=identify%20email%20guilds">Connect to Discord</a>
+		<a id="loginGitHub" class="connect" style="display: none;" href="">Connect to GitHub</a>
+		<fb:login-button 
+  scope="public_profile,email"
+  onlogin="checkLoginState();">
+</fb:login-button>
+										   // Facebook code
+										   
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '2950427738325445',
+      cookie     : true,
+      xfbml      : true,
+      version    : 'v5.0'
+    });
+      
+    FB.AppEvents.logPageView();   
+      
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+							 
+							 FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+							 // end facebook code
+							 // Connection code
+							 
+							 <script>
+							 
+FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+});
+								 
+function checkLoginState() {
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
+  });
+}
+							 
+							 </script>
+							 
+							 // end connection code
+		<script>
 		window.onload = () => {
 			const fragment = new URLSearchParams(window.location.hash.slice(1));
 
