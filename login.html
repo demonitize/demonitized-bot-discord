@@ -15,7 +15,7 @@
   scope="public_profile,email"
   onlogin="checkLoginState();">
 </fb:login-button>
-										   // Facebook code
+										<!facebook>
 										   
 <script>
   window.fbAsyncInit = function() {
@@ -39,12 +39,13 @@
    }(document, 'script', 'facebook-jssdk'));
 </script>
 							 
-							 FB.getLoginStatus(function(response) {
-    statusChangeCallback(response);
-							 // end facebook code
-							 // Connection code
+							
+							 <! end facebook>
+							 <! Connection code>
 							 
 							 <script>
+								  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response);
 							 
 FB.getLoginStatus(function(response) {
     statusChangeCallback(response);
@@ -58,7 +59,7 @@ function checkLoginState() {
 							 
 							 </script>
 							 
-							 // end connection code
+							 <!end connection>
 		<script>
 		window.onload = () => {
 			const fragment = new URLSearchParams(window.location.hash.slice(1));
