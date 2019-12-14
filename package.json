@@ -15,13 +15,11 @@
   "engines": {
     "node": "^12.7.0"
   },
-  "repository": {
-    "url": "https://glitch.com/edit/#!/demonitized-bot"
-  },
   "license": "Apache-2.0",
   "keywords": [
     "node",
     "discord",
     "express"
   ]
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
 }
