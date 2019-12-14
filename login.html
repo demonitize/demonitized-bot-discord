@@ -1,8 +1,8 @@
 <html>
 	<head>
 		<script>
-		localStorage.setItem("client_id", "");
-		localStorage.setItem("client_secret", "");
+		localStorage.setItem("client_id", "551194918853410817");
+		localStorage.setItem("client_secret", 'process.env.SECRET');
 		let params = 'scrollbars=no,resizable=no,status=no,location=yes,toolbar=no,menubar=no,width=23,height=80,left=0,top=0';
 
 </script>
@@ -89,10 +89,10 @@ const FormData = require('form-data');
 const data = new FormData();
 
 data.append('client_id', '551194918853410817');
-data.append('client_secret', 'your client secret');
+data.append('client_secret', 'process.env.SECRET');
 data.append('grant_type', 'authorization_code');
-data.append('redirect_uri', 'your redirect url');
-data.append('scope', 'the scopes');
+data.append('redirect_uri', 'https://dexterateed.github.io/demonitized.github.io/landing');
+data.append('scope', 'identify, email, guilds');
 data.append('code', accessCode);
 
 fetch('https://discordapp.com/api/oauth2/token', {
