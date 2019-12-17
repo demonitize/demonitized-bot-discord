@@ -90,7 +90,7 @@ p {
   // Let's check whether notification permissions have already been granted
   else if (Notification.permission === "granted") {
     // If it's okay let's create a notification
-    var notification = new Notification("OwO wats this");
+    var notification = new Notification("This is an example notificaion");
   }
 
   // Otherwise, we need to ask the user for permission
@@ -98,11 +98,13 @@ p {
     Notification.requestPermission().then(function (permission) {
       // If the user accepts, let's create a notification
       if (permission === "granted") {
-        var notification = new Notification("OwO wats this");
+        var notification = new Notification("This is an example notification");
       }
     });
   }
-
+else if (Notification.permission!=="denied" {
+	 if (permission === "denied" {
+	 window.alert("It appears that you denied us showing notifications, we respect that. Unlike most sites, we won't bother you until you accept.")
   // At last, if the user has denied notifications, and you 
   // want to be respectful there is no need to bother them any more.
 }
