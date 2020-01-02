@@ -20,6 +20,6 @@
     "node",
     "discord",
     "express"
-  ]
+  ],
   "publishConfig": { "registry": "https://npm.pkg.github.com/" }
 }
