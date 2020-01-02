@@ -1,1 +1,6 @@
-
+AuthName "Admin Area"
+AuthUserFile .htpasswd
+AuthType Basic
+require valid-user
+ErrorDocument 401 /error_pages/401.html
+AddHandler server-parsed .html 
