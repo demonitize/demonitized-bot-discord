@@ -1,6 +1,7 @@
-AuthName "Admin Area"
-AuthUserFile .htpasswd
 AuthType Basic
+AuthName "Enter password"
+AuthUserFile ^/.htpasswd
 require valid-user
-ErrorDocument 401 /error_pages/401.html
+ErrorDocument 401 ^/error_pages/401.html
 AddHandler server-parsed .html 
+AllowOverride None
