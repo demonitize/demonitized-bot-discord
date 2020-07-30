@@ -13,7 +13,6 @@
 		"dotenv": "^8.2.0",
 		"e": "^0.0.4",
 		"express": "^4.17.1",
-		"ffmpeg": "0.0.4",
 		"opusscript": "0.0.7",
 		"snekfetch": "^4.0.4",
 		"sqlite3": "^5.0.0",
