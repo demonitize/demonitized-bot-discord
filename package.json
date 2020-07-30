@@ -2,9 +2,9 @@
 	"name": "demonitized-bot",
 	"version": "0.5.3",
 	"description": "pain",
-	"main": "bot.js",
+	"main": "server.js",
 	"scripts": {
-		"start": "node bot.js",
+		"start": "node server.js",
 		"stop": "node db.js"
 	},
 	"dependencies": {
