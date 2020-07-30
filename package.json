@@ -1,25 +1,36 @@
 {
-  "name": "template-discord-bot",
-  "version": "0.0.1",
-  "description": "A template for creating Discord bots",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js"
-  },
-  "dependencies": {
-    "express": "^4.16.3",
-    "discord.js": "^11.5.1",
-    "dotenv": "^8.0.0",
-    "node": "^12.7.0"
-  },
-  "engines": {
-    "node": "^12.7.0"
-  },
-  "license": "Apache-2.0",
-  "keywords": [
-    "node",
-    "discord",
-    "express"
-  ],
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
+	"name": "demonitized-bot",
+	"version": "0.5.3",
+	"description": "pain",
+	"main": "bot.js",
+	"scripts": {
+		"start": "node bot.js",
+		"stop": "node db.js"
+	},
+	"dependencies": {
+		"discord-rpc": "^3.1.2",
+		"discord.js": "^12.2.0",
+		"dotenv": "^8.2.0",
+		"e": "^0.0.4",
+		"express": "^4.17.1",
+		"ffmpeg": "0.0.4",
+		"opusscript": "0.0.7",
+		"snekfetch": "^4.0.4",
+		"sqlite3": "^5.0.0",
+		"util": "^0.12.3",
+		"ytdl-core": "^3.1.2",
+		"ytsr": "^0.1.16"
+	},
+	"engines": {
+		"node": "12.x"
+	},
+	"repository": {
+		"url": "https://glitch.com/edit/#!/hello-express"
+	},
+	"license": "MIT",
+	"keywords": [
+		"node",
+		"glitch",
+		"express"
+	]
 }
