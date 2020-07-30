@@ -148,56 +148,56 @@ if (command === "errors") {
 }
 
 
-	var henzoidArgs = msg.content.split(' ');
-	henzoidArg = msg.content.split('?')
-	var henzoidQuestion = henzoidArgs.splice(0, 1);
-	henzoidQuestion = henzoidArgs.join(" ");
-	var henzoid = henzoidArgs.shift().toLowerCase();
-	 henzoid = includes('is henzoid a cow');
+// 	var henzoidArgs = msg.content.split(' ');
+// 	henzoidArg = msg.content.split('?')
+// 	var henzoidQuestion = henzoidArgs.splice(0, 1);
+// 	henzoidQuestion = henzoidArgs.join(" ");
+// 	var henzoid = henzoidArgs.shift().toLowerCase();
+// 	 henzoid = includes('is henzoid a cow');
 
-if (command === "8ball" && henzoid) {
-	var embed = new MessageEmbed()
-   .setTitle('8 Ball')
-   .setDescription(`${msg.author} The magic 8 ball has spoken`)
-   .addField('Question', `${henzoidQuestion}`, true)
-   .addField('Response', "Yes. Henzoid is a cow.", true)
-   .setFooter('Command created because I ran out of ideas')
-   .setColor(0x0b01105);
+// if (command === "8ball" && henzoid) {
+// 	var embed = new MessageEmbed()
+//    .setTitle('8 Ball')
+//    .setDescription(`${msg.author} The magic 8 ball has spoken`)
+//    .addField('Question', `${henzoidQuestion}`, true)
+//    .addField('Response', "Yes. Henzoid is a cow.", true)
+//    .setFooter('Command created because I ran out of ideas')
+//    .setColor(0x0b01105);
 
-   msg.channel.send(embed);
-} else if (command === "8ball" && !henzoid) {
-	let args = msg.content.split(' ');
-	let question = args.splice(0, 1);
-	question = args.join(" ");
-	const responses = [
-		'You can count on it.',
-		'No.',
-		'Yes.',
-		'My sources say no.',
-		'Reply foggy. Try again later.',
-		'Maybe.',
-		"IDK ask google it. I'm not like an 8ball or something.",
-		'THE DISCORD GODS SAY YES.'
-	];
+//    msg.channel.send(embed);
+// } else if (command === "8ball" && !henzoid) {
+// 	let args = msg.content.split(' ');
+// 	let question = args.splice(0, 1);
+// 	question = args.join(" ");
+// 	const responses = [
+// 		'You can count on it.',
+// 		'No.',
+// 		'Yes.',
+// 		'My sources say no.',
+// 		'Reply foggy. Try again later.',
+// 		'Maybe.',
+// 		"IDK ask google it. I'm not like an 8ball or something.",
+// 		'THE DISCORD GODS SAY YES.'
+// 	];
 
-	function randomizer() {	
-		let number = Math.floor((Math.random() * 7) + 0);
-	   return responses[number];
-	};
+// 	function randomizer() {	
+// 		let number = Math.floor((Math.random() * 7) + 0);
+// 	   return responses[number];
+// 	};
 
-   const replyToCmd = randomizer();
+//    const replyToCmd = randomizer();
 
-   var embed = new MessageEmbed()
-   .setTitle('8 Ball')
-   .setDescription(`${msg.author} The magic 8 ball has spoken`)
-   .addField('Question', `${question}`, true)
-   .addField('Response', `${replyToCmd}`, true)
-   .setFooter('Command created because I ran out of ideas')
-   .setColor(0x0b01105);
+//    var embed = new MessageEmbed()
+//    .setTitle('8 Ball')
+//    .setDescription(`${msg.author} The magic 8 ball has spoken`)
+//    .addField('Question', `${question}`, true)
+//    .addField('Response', `${replyToCmd}`, true)
+//    .setFooter('Command created because I ran out of ideas')
+//    .setColor(0x0b01105);
 
-   msg.channel.send(embed);
+//    msg.channel.send(embed);
 
-}
+// }
 
   try {
     if (command === "msg" && config.admins.includes(msg.author.id)) {
