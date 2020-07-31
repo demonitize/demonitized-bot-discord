@@ -34,7 +34,7 @@ client.on("ready", () => {
 	
 	console.log(`Logged in as ${client.user.tag}`);
 
-	client.user.setPresence({ activity: { name: 'have you tried turning it off and on again?', type: 'PLAYING' }, status: 'dnd' }) 
+	client.user.setPresence({ activity: { name: 'The music command is fixed!', type: 'PLAYING' }, status: 'dnd' }) 
 
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").ban({reason:""})
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
