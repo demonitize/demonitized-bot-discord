@@ -10,7 +10,31 @@ var broadcast = client.voice.createBroadcast();
 const blacklistDB = require('./db.js');
 const ytsr = require("ytsr");
 const arrays = require('./arrays.json');
-const config = require("./users.json"); // load from json
+const config = {
+	"blacklisted": [
+		"409554505500459030",
+		""
+	],
+	"admins": [
+		"414602371621060629",
+		"628298193922424857",
+		"218180379088125955",
+		"332293963291557889",
+		"473986240832602133"
+	  ],
+	  "owner": [
+		"414602371621060629", 
+		"628298193922424857",
+		"218180379088125955",
+		"473986240832602133"
+	  ],
+	  "master": [
+		  "414602371621060629",
+		  "218180379088125955", 
+		  "628298193922424857",
+		  "473986240832602133"
+	  ]
+}
 const { cpuUsage } = require('process');
 const { json } = require('express');
 
