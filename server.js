@@ -454,21 +454,93 @@ if (command === "errors") {
 			  var songTitle = searchResults.items[0].title;
 			  msg.channel.send(`Now playing: ${songTitle}`);
 
-			//   dispatcher.on('end', () => {
-			// 	  queue.songs.nowPlaying = queue.songs.nextSong;
-			// 	  queue.songs.nextSong = queue.songs.third;
-			// 	  queue.songs.third = queue.songs.fourth;
-			// 	  queue.songs.fourth = queue.songs.fifth;
-			// 	  queue.songs.fifth = queue.songs.sixth;
-			// 	  queue.songs.sixth = ``;
-			// 	  stream;
-			//   }).catch(console.error)
+			  dispatcher.on('finish', () => {
+				  queue.songs.nowPlaying = queue.songs.nextSong;
+				  queue.songs.nextSong = queue.songs.third;
+				  queue.songs.third = queue.songs.fourth;
+				  queue.songs.fourth = queue.songs.fifth;
+				  queue.songs.fifth = queue.songs.sixth;
+				  queue.songs.sixth = ``;
+				  stream;
+			  }).catch(console.error)
 			})
 			.catch(console.error);
 		  });
 		});
 	  });
 	}
+	
+	if (command === "playlist") {
+		const streamOptions = { seek: 0, volume: 1 };
+		let args = msg.content.split(`${prefix}playlist`);
+		let plist = args[1];
+
+		ytpl(`${plist}`, function(err, playlist) {
+			if (err) {
+				console.warn(err);
+				msg.channel.send('An error occurred');
+				return;
+			}
+
+			var nextPlay = 0
+		
+			var plistLength = playlist.total_items;
+			var query = playlist.items[nextPlay].id;
+
+
+		function playlistNext() {
+
+
+
+
+
+			let filter;
+
+
+			ytsr.getFilters(`${query}`, function (err, filters) {
+			if (err) throw err;
+			filter = filters.get('Type').find(o => o.name === 'Video');
+			ytsr.getFilters(filter.ref, function (err, filters) {
+				if (err) throw err;
+				filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
+				var options = {
+					limit: 5,
+					nextpageRef: filter.ref,
+				}
+				ytsr(`${query}`, options, function (err, searchResults) {
+
+					if (err) {
+						console.warn(err);
+						msg.channel.send(`An unexpected error has occurred. ${err}`);
+						return
+					}
+
+					var ytlink = searchResults.items[0].link;
+
+					msg.member.voice.channel
+						.join()
+						.then(connection => {
+
+							const stream = ytdl(ytlink, { filter: "audioonly" });
+							const dispatcher = connection.play(stream);
+							var songTitle = searchResults.items[0].title;
+							msg.channel.send(`Now playing: ${songTitle}`);
+
+							  dispatcher.on('finish', () => {
+								 nextPlay = nextPlay + 1;
+								 playlistNext()
+							  }).catch(console.error)
+						})
+								.catch(console.error);
+					});
+				});
+			});
+		}
+
+		playlistNext()
+	})
+
+}
 
   if (command === "swick") {
 	msg.member.voiceChannel
