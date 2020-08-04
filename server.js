@@ -10,6 +10,7 @@ var broadcast = client.voice.createBroadcast();
 const blacklistDB = require('./db.js');
 const ytsr = require("ytsr");
 const arrays = require('./arrays.json');
+const ytpl = require('ytpl')
 const config = {
 	"blacklisted": [
 		"409554505500459030",
