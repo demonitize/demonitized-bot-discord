@@ -53,8 +53,22 @@ client.on('error', err => {
 
 
 client.on("ready", () => {
+	
+	var date = new Date()
+	var embed = new MessageEmbed()
+	.setColor(0x0b01105)
+	.setTitle('BOT STARTUP')
+	.setDescription(`The bot has started with the following stats`)
+	.addField('GUILDS', client.guilds.cache.size, true)
+	.addField('CHANNELS', client.channels.cache.size, true)
+	.addField('MEMBERS', client.users.cache.size, true)
+	.setTimestamp(date)
 
-	// client.guilds.cache.fetch("618236743560462356").channels.cache.fetch("647527428784390164").send("Starting Windows 3.1")
+	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send(embed)
+	
+	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
+	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`)
+
 	// console.warn("uncomment startup message")
 	
 	console.log(`Logged in as ${client.user.tag}`);
@@ -120,14 +134,24 @@ client.on("message", msg => {
     .trim()
     .split(/ +/);
   const command = args.shift().toLowerCase();
+	
+	if (command === "stats" || command === "status") {
+	var date = new Date()
+	var embed = new MessageEmbed()
+	.setColor(0x0b01105)
+	.setTitle('BOT STATUS')
+	.setDescription('The bot was started with the following stats')
+	.addField('GUILDS', client.guilds.cache.size, true)
+	.addField('CHANNELS', client.channels.cache.size, true)
+	.addField('MEMBERS', client.users.cache.size, true)
+	.setTimestamp(date)
+
+	msg.channel.send(embed)
+	}
 
 
   if (command === "membercount" || command === "members") {
 	  msg.channel.send(`Current member count: ${msg.guild.memberCount}`)
-  }
-
-  if (command === "stats") {
-    return msg.channel.send(`Server count: ${client.guilds.cache.size}`);
   }
 
   if (command === "join") {
