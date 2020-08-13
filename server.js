@@ -1,5 +1,7 @@
 const { Client, MessageEmbed } = require('discord.js');
 const ytdl = require("ytdl-core");
+const events = require('events');
+const eventEmitter = new events.EventEmitter();
 const client = new Client({ shardCount: 1 });
 const prefix = "??";
 const fs = require("fs");
@@ -53,7 +55,6 @@ client.on('error', err => {
 
 
 client.on("ready", () => {
-	
 	var date = new Date()
 	var embed = new MessageEmbed()
 	.setColor(0x0b01105)
@@ -65,15 +66,12 @@ client.on("ready", () => {
 	.setTimestamp(date)
 
 	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send(embed)
+	// console.warn("uncomment startup message")
 	
 	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`)
 
-	// console.warn("uncomment startup message")
-	
-	console.log(`Logged in as ${client.user.tag}`);
-
-	client.user.setPresence({ activity: { name: 'Have you tried turning it off and on again?', type: 'PLAYING' }, status: 'dnd' }) 
+	client.user.setPresence({ activity: { name: '??play is now the main music command', type: 'PLAYING' }, status: 'dnd' }) 
 
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").ban({reason:""})
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
@@ -82,43 +80,7 @@ client.on("ready", () => {
 
 });
 
-
-// client.on("message", async msg => {
-
-// 	if (!msg.guild) return;
-
-// 	const forbiddenWords = arrays.forbiddenWords
-	
-// 	let foundInText = false;
-// 	for (var i in forbiddenWords) {
-// 		if (msg.content.toLowerCase().includes(forbiddenWords[i].toLowerCase())) foundInText = true; 
-// 	}
-
-// 	if (foundInText) {
-// 		msg.delete();
-// 		msg.channel.send(`${msg.author} was **BLACKLISTED** for: '[AUTOMOD] Using derogatory language' `);
-// 		var user = msg.author.id;
-// 		const reason = "[AUTOMOD] Using derogatory language";
-// 		blacklistDB.autoBlackList(user, reason)
-// 	}
-// });
-
-
-
 client.on("message", msg => {
-//Check Blacklist to see if user can use bot
-
-
-	// blacklistDB.checkBlackList(msg.author.id, (err, row) => {
-	// 	console.log(row)
-	// 	if(row){
-	// 		msg.channel.send(`It appears as though you have been blacklisted from using the bot. To appeal please contact the bot owner.`);
-	// 		console.log(`Blacklisted user ${msg.author.id} tried to use command`);
-	// 	}
-	// })
-
-
-	//DM command DLC sold seperately
 
   if (!msg.guild) return;
   if (!msg.content.startsWith(prefix)) return;
@@ -134,24 +96,105 @@ client.on("message", msg => {
     .trim()
     .split(/ +/);
   const command = args.shift().toLowerCase();
-	
-	if (command === "stats" || command === "status") {
-	var date = new Date()
-	var embed = new MessageEmbed()
-	.setColor(0x0b01105)
-	.setTitle('BOT STATUS')
-	.setDescription('The bot was started with the following stats')
-	.addField('GUILDS', client.guilds.cache.size, true)
-	.addField('CHANNELS', client.channels.cache.size, true)
-	.addField('MEMBERS', client.users.cache.size, true)
-	.setTimestamp(date)
 
-	msg.channel.send(embed)
+  if (command === "play") {
+	let args = msg.content.split(`${prefix}play`);
+	console.log('PLAY COMMAND USED')
+	let query = args[1];
+	if (ytdl.validateURL(query)) {
+		console.log('URL VALID')
+
+		msg.member.voice.channel
+		.join()
+		.then(connection => {
+  
+		  const stream = ytdl(query, { filter: "audioonly" });
+		  const dispatcher = connection.play(stream);
+
+		  ytdl.getInfo(query).then(data => {
+			var videoInfo = data.videoDetails.title
+			var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
+  
+			var embed = new MessageEmbed()
+			.setTitle('YouTube Player')
+			.setDescription(`Now playing: ${videoInfo}`)
+			.setThumbnail(videoTumbnail)
+			.setTimestamp(new Date)
+			msg.channel.send(embed)
+
+		  })
+
+		 
+
+		})
+
+
+	} else if (!ytdl.validateURL(query)) {
+		console.log('URL NOT VALID')
+		
+	let filter;
+
+	ytsr.getFilters(`${query}`, function(err, filters) {
+		if(err) throw err;
+		filter = filters.get('Type').find(o => o.name === 'Video');
+		ytsr.getFilters(filter.ref, function(err, filters) {
+		  if(err) throw err;
+		  filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
+		  var options = {
+			limit: 5,
+			nextpageRef: filter.ref,
+		  }
+		  ytsr(`${query}`, options, function(err, searchResults) {
+
+			if(err) {
+				console.warn(err);
+				msg.channel.send(`An unexpected error has occurred. ${err}`);
+				return
+			}
+
+		var newLink = searchResults.items[0].link;
+		msg.member.voice.channel
+		.join()
+		.then(connection => {
+  
+		  const stream = ytdl(newLink, { filter: "audioonly" });
+		  const dispatcher = connection.play(stream);
+
+		  ytdl.getInfo(newLink).then(data => {
+			var videoInfo = data.videoDetails.title
+			var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
+  
+			var embed = new MessageEmbed()
+			.setTitle('YouTube Player')
+			.setDescription(`Now playing: ${videoInfo}`)
+			.setThumbnail(videoTumbnail)
+			.setTimestamp(new Date)
+			msg.channel.send(embed)
+
+		  })
+
+		 
+
+		})
+
+
+			})
+		});
+	});
+	} else {
+		console.log('UNKNOWN ERROR')
+		msg.channel.send('An error occurred. Please try again.');
+		return;
 	}
+}
 
 
   if (command === "membercount" || command === "members") {
 	  msg.channel.send(`Current member count: ${msg.guild.memberCount}`)
+  }
+
+  if (command === "stats") {
+    return msg.channel.send(`Server count: ${client.guilds.cache.size}`);
   }
 
   if (command === "join") {
@@ -195,59 +238,6 @@ if (command === "errors") {
 	.setColor(0x0b01105);
 	msg.channel.send(embed)
 }
-
-
-// 	var henzoidArgs = msg.content.split(' ');
-// 	henzoidArg = msg.content.split('?')
-// 	var henzoidQuestion = henzoidArgs.splice(0, 1);
-// 	henzoidQuestion = henzoidArgs.join(" ");
-// 	var henzoid = henzoidArgs.shift().toLowerCase();
-// 	 henzoid = includes('is henzoid a cow');
-
-// if (command === "8ball" && henzoid) {
-// 	var embed = new MessageEmbed()
-//    .setTitle('8 Ball')
-//    .setDescription(`${msg.author} The magic 8 ball has spoken`)
-//    .addField('Question', `${henzoidQuestion}`, true)
-//    .addField('Response', "Yes. Henzoid is a cow.", true)
-//    .setFooter('Command created because I ran out of ideas')
-//    .setColor(0x0b01105);
-
-//    msg.channel.send(embed);
-// } else if (command === "8ball" && !henzoid) {
-// 	let args = msg.content.split(' ');
-// 	let question = args.splice(0, 1);
-// 	question = args.join(" ");
-// 	const responses = [
-// 		'You can count on it.',
-// 		'No.',
-// 		'Yes.',
-// 		'My sources say no.',
-// 		'Reply foggy. Try again later.',
-// 		'Maybe.',
-// 		"IDK ask google it. I'm not like an 8ball or something.",
-// 		'THE DISCORD GODS SAY YES.'
-// 	];
-
-// 	function randomizer() {	
-// 		let number = Math.floor((Math.random() * 7) + 0);
-// 	   return responses[number];
-// 	};
-
-//    const replyToCmd = randomizer();
-
-//    var embed = new MessageEmbed()
-//    .setTitle('8 Ball')
-//    .setDescription(`${msg.author} The magic 8 ball has spoken`)
-//    .addField('Question', `${question}`, true)
-//    .addField('Response', `${replyToCmd}`, true)
-//    .setFooter('Command created because I ran out of ideas')
-//    .setColor(0x0b01105);
-
-//    msg.channel.send(embed);
-
-// }
-
   try {
     if (command === "msg" && config.admins.includes(msg.author.id)) {
 		msg.delete()
@@ -270,7 +260,7 @@ if (command === "errors") {
   try {
     if (command === "send" && config.admins.includes(msg.author.id)) {
       let args = msg.content.split(" ");
-      let channel = client.channels.fetch(args[1]);
+      let channel = client.channels.cache.fetch(args[1]);
       let chanMsg = args.splice(0, 2);
       chanMsg = args.join(" ");
       channel.send(chanMsg);
@@ -309,31 +299,6 @@ if (command === "errors") {
   if (command === "website") {
     msg.channel.send("https://demonitized-bot-website.glitch.me");
   }
-
-  // Command template
-  
-  
-  /*
-  if (command === "") {
-  
-  }
-  
-  if (command === "") {
-  
-  }
-  
-  if (command === "") {
-  
-  }
-  
-  
-  
-*/
-
-
-
-
-
   if (command === "disconnect") {
 	client.leaveVoiceChannel(msg.author.voiceChannel)
   }
@@ -386,118 +351,12 @@ if (command === "errors") {
 	return
 }
 
-  // YouTube system
-
-  if (command === "play" || command === "p") {
-  	// Play streams using ytdl-core
-
-	// ytlink = args.splice(0, 1);
-    const streamOptions = { seek: 0, volume: 1 };
-	let args = msg.content.split(" ");
-	var ytlink = args[1];
-
-
-	
-    msg.member.voice.channel
-      .join()
-      .then(connection => {
-
-
-
-        const stream = ytdl(ytlink, { filter: "audioonly" });
-		const dispatcher = connection.play(stream);
-      })
-	  .catch(console.error);
-
-	}
-
-	if (command === "search") {
-		const streamOptions = { seek: 0, volume: 1 };
-		let args = msg.content.split(`${prefix}search`);
-		let query = args[1];
-
-
-	let filter;
-
-	ytsr.getFilters(`${query}`, function(err, filters) {
-		if(err) throw err;
-		filter = filters.get('Type').find(o => o.name === 'Video');
-		ytsr.getFilters(filter.ref, function(err, filters) {
-		  if(err) throw err;
-		  filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
-		  var options = {
-			limit: 5,
-			nextpageRef: filter.ref,
-		  }
-		  ytsr(`${query}`, options, function(err, searchResults) {
-
-			if(err) {
-				console.warn(err);
-				msg.channel.send(`An unexpected error has occurred. ${err}`);
-				return
-			}
-
-		var ytlink = searchResults.items[0].link;
+	if (command === "pl") {
+		return
 		
-
-
-			
-		var queue = {
-			songs: {
-				nowPlaying: ``,
-				nextSong: ``,
-				third: ``,
-				fourth: ``,
-				fifth: ``,
-				sixth: ``
-			}
-		}
-
-		if (queue.songs.nowPlaying === ``) {
-			queue.songs.nowPlaying = `${ytlink}`;
-		} else if (queue.songs.nextSong === ``) {
-			queue.songs.nextSong = `${ytlink}`;
-		} else if (queue.songs.third === ``) {
-			queue.songs.third = `${ytlink}`;
-		} else if (queue.songs.fourth === ``) {
-			queue.songs.fifth = `${ytlink}`;
-		} else if (queue.songs.fifth === ``) {
-			queue.songs.fifth = `${ytlink}`;
-		} else if (queue.songs.sixth === ``) {
-			queue.songs.sixth = `${ytlink}`
-		} else {
-			msg.channel.send('There is no more room to add more songs :(')
-		}
-
-  
-			msg.member.voice.channel
-			.join()
-			.then(connection => {
-	  
-			  const stream = ytdl(ytlink, { filter: "audioonly" });
-			  const dispatcher = connection.play(stream);
-			  var songTitle = searchResults.items[0].title;
-			  msg.channel.send(`Now playing: ${songTitle}`);
-
-			  dispatcher.on('finish', () => {
-				  queue.songs.nowPlaying = queue.songs.nextSong;
-				  queue.songs.nextSong = queue.songs.third;
-				  queue.songs.third = queue.songs.fourth;
-				  queue.songs.fourth = queue.songs.fifth;
-				  queue.songs.fifth = queue.songs.sixth;
-				  queue.songs.sixth = ``;
-				  stream;
-			  }).catch(console.error)
-			})
-			.catch(console.error);
-		  });
-		});
-	  });
-	}
-	
-	if (command === "playlist") {
+		// command not yet stable 
 		const streamOptions = { seek: 0, volume: 1 };
-		let args = msg.content.split(`${prefix}playlist`);
+		let args = msg.content.split(`${prefix}pl`);
 		let plist = args[1];
 
 		ytpl(`${plist}`, function(err, playlist) {
@@ -512,12 +371,8 @@ if (command === "errors") {
 			var plistLength = playlist.total_items;
 			var query = playlist.items[nextPlay].id;
 
-
+			playlistNext()
 		function playlistNext() {
-
-
-
-
 
 			let filter;
 
@@ -552,17 +407,14 @@ if (command === "errors") {
 							msg.channel.send(`Now playing: ${songTitle}`);
 
 							  dispatcher.on('finish', () => {
-								 nextPlay = nextPlay + 1;
+								 nextPlay + 1
 								 playlistNext()
-							  }).catch(console.error)
-						})
-								.catch(console.error);
+							  })
+						}).catch(console.error);
 					});
 				});
 			});
 		}
-
-		playlistNext()
 	})
 
 }
@@ -809,7 +661,7 @@ client.on('message', async msg => {
 		try {
 			const snekfetch = require('snekfetch');
 			const { body } = await snekfetch
-			.cache.fetch('https://www.reddit.com/r/dankmemes.json?sort=top&t=week')
+			.get('https://www.reddit.com/r/dankmemes.json?sort=top&t=week')
 				.query({ limit: 800 });
 			const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
 			if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
@@ -840,4 +692,3 @@ client.on("message", async m => {
   }
 });
 client.login(loginBot);
-
