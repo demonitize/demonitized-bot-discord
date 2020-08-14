@@ -13,6 +13,7 @@ const blacklistDB = require('./db.js');
 const ytsr = require("ytsr");
 const arrays = require('./arrays.json');
 const ytpl = require('ytpl')
+var loop = false
 const config = {
 	"blacklisted": [
 		"409554505500459030",
@@ -97,98 +98,104 @@ client.on("message", msg => {
     .split(/ +/);
   const command = args.shift().toLowerCase();
 
-  if (command === "play") {
-	let args = msg.content.split(`${prefix}play`);
-	console.log('PLAY COMMAND USED')
-	let query = args[1];
-	if (ytdl.validateURL(query)) {
-		console.log('URL VALID')
+	if (command === "play") {
+		let args = msg.content.split(`${prefix}play`);
+		console.log('PLAY COMMAND USED')
+		let query = args[1];
+		if (ytdl.validateURL(query)) {
+			console.log('URL VALID')
+			msg.member.voice.channel
+				.join()
+				.then(connection => {
 
-		msg.member.voice.channel
-		.join()
-		.then(connection => {
-  
-		  const stream = ytdl(query, { filter: "audioonly" });
-		  const dispatcher = connection.play(stream);
+					const stream = ytdl(query, { filter: "audioonly" });
+					const dispatcher = connection.play(stream);
 
-		  ytdl.getInfo(query).then(data => {
-			var videoInfo = data.videoDetails.title
-			var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
-  
-			var embed = new MessageEmbed()
-			.setTitle('YouTube Player')
-			.setDescription(`Now playing: ${videoInfo}`)
-			.setThumbnail(videoTumbnail)
-			.setTimestamp(new Date)
-			msg.channel.send(embed)
+					ytdl.getInfo(query).then(data => {
+						var videoInfo = data.videoDetails.title
+						var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
 
-		  })
+						var embed = new MessageEmbed()
+							.setTitle('YouTube Player')
+							.setDescription(`Now playing: ${videoInfo}`)
+							.setThumbnail(videoTumbnail)
+							.setTimestamp(new Date)
+						msg.channel.send(embed)
+					})
+				})
+		} else if (!ytdl.validateURL(query)) {
+			console.log('URL NOT VALID')
 
-		 
+			let filter;
 
-		})
+			ytsr.getFilters(`${query}`, function (err, filters) {
+				if (err) throw err;
+				filter = filters.get('Type').find(o => o.name === 'Video');
+				ytsr.getFilters(filter.ref, function (err, filters) {
+					if (err) throw err;
+					filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
+					var options = {
+						limit: 5,
+						nextpageRef: filter.ref,
+					}
+					ytsr(`${query}`, options, function (err, searchResults) {
 
+						if (err) {
+							console.warn(err);
+							msg.channel.send(`An unexpected error has occurred. ${err}`);
+							return
+						}
 
-	} else if (!ytdl.validateURL(query)) {
-		console.log('URL NOT VALID')
-		
-	let filter;
+						var newLink = searchResults.items[0].link;
+						msg.member.voice.channel
+							.join()
+							.then(connection => {
 
-	ytsr.getFilters(`${query}`, function(err, filters) {
-		if(err) throw err;
-		filter = filters.get('Type').find(o => o.name === 'Video');
-		ytsr.getFilters(filter.ref, function(err, filters) {
-		  if(err) throw err;
-		  filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
-		  var options = {
-			limit: 5,
-			nextpageRef: filter.ref,
-		  }
-		  ytsr(`${query}`, options, function(err, searchResults) {
+								const stream = ytdl(newLink, { filter: "audioonly" });
+								const dispatcher = connection.play(stream);
 
-			if(err) {
-				console.warn(err);
-				msg.channel.send(`An unexpected error has occurred. ${err}`);
-				return
-			}
+								ytdl.getInfo(newLink).then(data => {
+									var videoInfo = data.videoDetails.title
+									var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
 
-		var newLink = searchResults.items[0].link;
-		msg.member.voice.channel
-		.join()
-		.then(connection => {
-  
-		  const stream = ytdl(newLink, { filter: "audioonly" });
-		  const dispatcher = connection.play(stream);
+									var embed = new MessageEmbed()
+										.setTitle('YouTube Player')
+										.setDescription(`Now playing: ${videoInfo}`)
+										.setThumbnail(videoTumbnail)
+										.setTimestamp(new Date)
+									msg.channel.send(embed)
+								})
 
-		  ytdl.getInfo(newLink).then(data => {
-			var videoInfo = data.videoDetails.title
-			var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
-  
-			var embed = new MessageEmbed()
-			.setTitle('YouTube Player')
-			.setDescription(`Now playing: ${videoInfo}`)
-			.setThumbnail(videoTumbnail)
-			.setTimestamp(new Date)
-			msg.channel.send(embed)
-
-		  })
-
-		 
-
-		})
-
-
-			})
-		});
-	});
-	} else {
-		console.log('UNKNOWN ERROR')
-		msg.channel.send('An error occurred. Please try again.');
-		return;
+								dispatcher.on('finish', playingNext => {
+									if (loop) {
+										connection.play(stream)
+									}
+								})
+							})
+					})
+				});
+			});
+		} else {
+			console.log('UNKNOWN ERROR')
+			msg.channel.send('An error occurred. Please try again.');
+			return;
+		}
 	}
-}
 
+	if (command === "loop") {
+		if (loop === false) {
+			loop = true
+		} else {
+			loop = false
+		}
+		var embed = new MessageEmbed()
+		.setTitle('YouTube Player')
+		.setDescription(`Loop has been set to ${loop}`)
+		.setTimestamp(new Date)
+		msg.channel.send(embed)
+	}
 
+	
   if (command === "membercount" || command === "members") {
 	  msg.channel.send(`Current member count: ${msg.guild.memberCount}`)
   }
