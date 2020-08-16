@@ -81,7 +81,7 @@ client.on("ready", () => {
 
 });
 
-client.on("message", msg => {
+client.on("message", async msg => {
 
   if (!msg.guild) return;
   if (!msg.content.startsWith(prefix)) return;
