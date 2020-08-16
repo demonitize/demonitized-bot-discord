@@ -435,6 +435,30 @@ if (command === "errors") {
 	})
 
 }
+	
+	if (command === 'meme') {
+		try {
+			const snekfetch = require('snekfetch');
+			const { body } = await snekfetch
+				.get('https://www.reddit.com/r/dankmemes.json?sort=top&t=week')
+				.query({ limit: 800 });
+			const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
+			if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
+			const randomnumber = Math.floor(Math.random() * allowed.length)
+			const embed = new MessageEmbed()
+				.setColor(0x00A2E8)
+				.setTitle(allowed[randomnumber].data.title)
+				.setDescription("Posted by: " + allowed[randomnumber].data.author)
+				.setImage(allowed[randomnumber].data.url)
+				.addField("Other info:", "Up votes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments)
+				.setFooter("Memes provided by r/dankmemes")
+			msg.channel.send(embed)
+		} catch (err) {
+			return console.log(err);
+		}
+	}
+});
+
 
   if (command === "swick") {
 	msg.member.voiceChannel
@@ -656,47 +680,6 @@ client.on("guildCreate", guild => {
 });
 
 //voice system
-
-client.on('message', async msg => {
-	// Voice only works in guilds, if the message does not come from a guild,
-	// we ignore it
-	if (!msg.content.startsWith(prefix)) return;
-	if (msg.author.bot) return
-	const prefixRegex = new RegExp(
-	  `^(<@!?${client.user.id}>|${escapeRegex(prefix)})\\s*`
-	);
-	if (!prefixRegex.test(msg.content)) return;
-  
-	const [, matchedPrefix] = msg.content.match(prefixRegex);
-	const args = msg.content
-	  .slice(matchedPrefix.length)
-	  .trim()
-	  .split(/ +/);
-	const command = args.shift().toLowerCase();
-
-	if (command === 'meme') {
-		try {
-			const snekfetch = require('snekfetch');
-			const { body } = await snekfetch
-			.get('https://www.reddit.com/r/dankmemes.json?sort=top&t=week')
-				.query({ limit: 800 });
-			const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
-			if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
-			const randomnumber = Math.floor(Math.random() * allowed.length)
-			const embed = new MessageEmbed()
-			.setColor(0x00A2E8)
-			.setTitle(allowed[randomnumber].data.title)
-			.setDescription("Posted by: " + allowed[randomnumber].data.author)
-			.setImage(allowed[randomnumber].data.url)
-			.addField("Other info:", "Up votes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments)
-			.setFooter("Memes provided by r/dankmemes")
-			msg.channel.send(embed)
-		} catch (err) {
-			return console.log(err);
-		}
-	}
-  });
-
 
 client.on("message", async m => {
   m.isDM = m.guild ? false : true;
