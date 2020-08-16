@@ -102,8 +102,13 @@ client.on("message", msg => {
 		let args = msg.content.split(`${prefix}play`);
 		console.log('PLAY COMMAND USED')
 		let query = args[1];
+		if (!msg.member.voice.channel) {
+			msg.channel.send(`${msg.author} You have to join a voice channel to use music commands.`);
+			return;
+		}
 		if (ytdl.validateURL(query)) {
-			console.log('URL VALID')
+			console.log('URL VALID');
+
 			msg.member.voice.channel
 				.join()
 				.then(connection => {
@@ -113,12 +118,14 @@ client.on("message", msg => {
 
 					ytdl.getInfo(query).then(data => {
 						var videoInfo = data.videoDetails.title
+						var videoURL = data.videoDetails.videoId
 						var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
 
 						var embed = new MessageEmbed()
 							.setTitle('YouTube Player')
 							.setDescription(`Now playing: ${videoInfo}`)
 							.setThumbnail(videoTumbnail)
+							.setURL(`https://youtube.com/watch?v=${videoURL}`)
 							.setTimestamp(new Date)
 						msg.channel.send(embed)
 					})
@@ -181,6 +188,7 @@ client.on("message", msg => {
 			return;
 		}
 	}
+
 
 	if (command === "loop") {
 		if (loop === false) {
