@@ -72,7 +72,7 @@ client.on("ready", () => {
 	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`)
 
-	client.user.setPresence({ activity: { name: '??play is now the main music command', type: 'PLAYING' }, status: 'dnd' }) 
+	client.user.setPresence({ activity: { name: 'Version 1.5.7', type: 'PLAYING' }, status: 'dnd' }) 
 
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").ban({reason:""})
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
@@ -98,7 +98,7 @@ client.on("message", msg => {
     .split(/ +/);
   const command = args.shift().toLowerCase();
 
-	if (command === "play") {
+		if (command === "play") {
 		let args = msg.content.split(`${prefix}play`);
 		console.log('PLAY COMMAND USED')
 		let query = args[1];
@@ -163,11 +163,13 @@ client.on("message", msg => {
 
 								ytdl.getInfo(newLink).then(data => {
 									var videoInfo = data.videoDetails.title
+									var videoURL = data.videoDetails.videoId
 									var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
 
 									var embed = new MessageEmbed()
 										.setTitle('YouTube Player')
 										.setDescription(`Now playing: ${videoInfo}`)
+										.setURL(`https://youtube.com/watch?v=${videoURL}`)
 										.setThumbnail(videoTumbnail)
 										.setTimestamp(new Date)
 									msg.channel.send(embed)
