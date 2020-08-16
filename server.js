@@ -457,7 +457,6 @@ if (command === "errors") {
 			return console.log(err);
 		}
 	}
-});
 
 
   if (command === "swick") {
