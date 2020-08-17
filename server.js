@@ -6,6 +6,7 @@ const snekfetch = require('snekfetch');
 const client = new Client({ shardCount: 1 });
 const prefix = "??";
 const fs = require("fs");
+const request = require('request');
 require('dotenv').config();
 const loginBot = process.env.SECRET;
 const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -77,6 +78,21 @@ client.on("ready", () => {
 
 	client.user.setPresence({ activity: { name: 'Version 1.6.0', type: 'PLAYING' }, status: 'dnd' }) 
 
+	var options = { method: 'POST',
+  url: 'https://discordbotlist.com/api/v1/bots/551194918853410817/stats',
+  headers: 
+   { 'cache-control': 'no-cache',
+     'content-type': 'application/x-www-form-urlencoded',
+     authorization: process.env.UPDATE_TOKEN },
+  form: { guilds: client.guilds.cache.size, users: client.users.cache.size } };
+
+request(options, function (error, response, body) {
+  if (error) console.warn(new Error(error));
+  console.log(response);
+  console.log(body);
+});
+
+	
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").ban({reason:""})
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
 });
