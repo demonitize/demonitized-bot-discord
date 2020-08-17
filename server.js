@@ -178,12 +178,6 @@ client.on("message", async msg => {
 										.setTimestamp(new Date)
 									msg.channel.send(embed)
 								})
-
-								dispatcher.on('finish', playingNext => {
-									if (loop) {
-										connection.play(stream)
-									}
-								})
 							})
 					})
 				});
