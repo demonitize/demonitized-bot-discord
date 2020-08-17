@@ -174,6 +174,7 @@ client.on("message", async msg => {
 										.setTitle('YouTube Player')
 										.setDescription(`Now playing: ${videoInfo}`)
 										.setURL(`https://youtube.com/watch?v=${videoURL}`)
+										.set
 										.setThumbnail(videoTumbnail)
 										.setTimestamp(new Date)
 									msg.channel.send(embed)
