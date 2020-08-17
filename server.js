@@ -97,6 +97,10 @@ client.on("message", async msg => {
     .trim()
     .split(/ +/);
   const command = args.shift().toLowerCase();
+	
+		if (command === "k") {
+			msg.channel.send('<:GWk:742579616891273318>');
+		}
 
 		if (command === "play") {
 		let args = msg.content.split(`${prefix}play`);
