@@ -97,6 +97,23 @@ request(options, function (error, response, body) {
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
 });
 
+setInterval(() => {
+	var options = { method: 'POST',
+  url: 'https://discordbotlist.com/api/v1/bots/551194918853410817/stats',
+  headers: 
+   { 'cache-control': 'no-cache',
+     'content-type': 'application/x-www-form-urlencoded',
+     authorization: process.env.UPDATE_TOKEN },
+  form: { guilds: client.guilds.cache.size, users: client.users.cache.size } };
+
+request(options, function (error, response, body) {
+  if (error) console.warn(new Error(error));
+  console.log(response);
+  console.log(body);
+});
+
+}, 900000);
+
 client.on("message", async msg => {
 
   if (!msg.guild) return;
