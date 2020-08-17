@@ -2,6 +2,7 @@ const { Client, MessageEmbed } = require('discord.js');
 const ytdl = require("ytdl-core");
 const events = require('events');
 const eventEmitter = new events.EventEmitter();
+const snekfetch = require('snekfetch');
 const client = new Client({ shardCount: 1 });
 const prefix = "??";
 const fs = require("fs");
@@ -12,8 +13,7 @@ var broadcast = client.voice.createBroadcast();
 const blacklistDB = require('./db.js');
 const ytsr = require("ytsr");
 const arrays = require('./arrays.json');
-const ytpl = require('ytpl')
-var loop = false
+const ytpl = require('ytpl');
 const config = {
 	"blacklisted": [
 		"409554505500459030",
@@ -44,14 +44,17 @@ const { json } = require('express');
 
 client.on('debug', info => {
 	console.log(info);
+	return
 });
 
 client.on('warn', err => {
 	console.warn(err);
+	return
 })
 
 client.on('error', err => {
 	console.warn(err);
+	return
 })
 
 
@@ -72,13 +75,10 @@ client.on("ready", () => {
 	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`)
 
-	client.user.setPresence({ activity: { name: 'Version 1.5.7', type: 'PLAYING' }, status: 'dnd' }) 
+	client.user.setPresence({ activity: { name: 'Version 1.6.0', type: 'PLAYING' }, status: 'dnd' }) 
 
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").ban({reason:""})
  //client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
-	//  console.log(client.guilds)
-	 
-
 });
 
 client.on("message", async msg => {
@@ -195,42 +195,38 @@ client.on("message", async msg => {
 		}
 	}
 
-
-	if (command === "loop") {
-		if (loop === false) {
-			loop = true
-		} else {
-			loop = false
-		}
-		var embed = new MessageEmbed()
-		.setTitle('YouTube Player')
-		.setDescription(`Loop has been set to ${loop}`)
-		.setTimestamp(new Date)
-		msg.channel.send(embed)
-	}
-
 	
   if (command === "membercount" || command === "members") {
 	  msg.channel.send(`Current member count: ${msg.guild.memberCount}`)
   }
 
   if (command === "stats") {
-    return msg.channel.send(`Server count: ${client.guilds.cache.size}`);
-  }
-
-  if (command === "join") {
-    let channel = client.channels.cache.fetch("632286760495480883");
-    channel.join();
-  }
+		var date = new Date()
+		var embed = new MessageEmbed()
+			.setColor(0x0b01105)
+			.setTitle('BOT STARTUP')
+			.setDescription(`The bot currently has the following stats`)
+			.addField('TOTAL GUILDS', client.guilds.cache.size, true)
+			.addField('TOTAL CHANNELS', client.channels.cache.size, true)
+			.addField('TOTAL MEMBERS', client.users.cache.size, true)
+			.setTimestamp(date)
+			msg.channel.send(embed)
+	}
   
-  if (command === "help") {
-	const embed = new MessageEmbed()
-	.setTitle('HELP DLC Not found')
-	.setColor(0xff0000)
-	.setDescription('Please purchase the HELP DLC to get help');
-	  msg.channel.send(embed);
-    console.log("Someone used the help command!");
-  }
+ 	if (command === "help") {
+		const embed = new MessageEmbed()
+			.setTitle('COMMANDS')
+			.setColor(0xff0000)
+			.addField('??play', "Used to play a song from youtube.", false)
+			.addField('??meme', "Used to get a meme from reddit. [BROKEN CURRENTLY]", false)
+			.addField('??errors', "Used to show the latest errors.", false)
+			.addField('??forcestop', "Used to crash the bot in case it breaks", false)
+			.addField('??stats', "Displays bot status", false)
+			.addField('??membercount', "Displays the amount of members in your current server", false)
+		msg.channel.send(embed);
+		console.log("Someone used the help command!");
+	}
+
 
   if (command === "spam" && config.owner.includes(msg.author.id)) {
     msg.delete();
@@ -442,14 +438,13 @@ if (command === "errors") {
 	
 	if (command === 'meme') {
 		try {
-			const snekfetch = require('snekfetch');
 			const { body } = await snekfetch
 				.get('https://www.reddit.com/r/dankmemes.json?sort=top&t=week')
 				.query({ limit: 800 });
 			const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
 			if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
 			const randomnumber = Math.floor(Math.random() * allowed.length)
-			const embed = new MessageEmbed()
+			var embed = new MessageEmbed()
 				.setColor(0x00A2E8)
 				.setTitle(allowed[randomnumber].data.title)
 				.setDescription("Posted by: " + allowed[randomnumber].data.author)
