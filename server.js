@@ -76,7 +76,7 @@ client.on("ready", () => {
 	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`)
 
-	client.user.setPresence({ activity: { name: 'Version 1.6.0', type: 'PLAYING' }, status: 'dnd' })
+	client.user.setPresence({ activity: { name: 'Version 1.6.5', type: 'PLAYING' }, status: 'dnd' })
 
 	var options = {
 		method: 'POST',
@@ -232,7 +232,11 @@ client.on("message", async msg => {
 
 	if (command === "leave" || command === "dc" || command === "disconnect") {
 		if (msg.author.voiceChannel && client.voiceChannel) {
-			msg.author.voiceChannel.leaveVoiceChannel();
+			msg.author.voiceChannel.leave();
+			msg.channel.send('Left the voice channel');
+		} else {
+			msg.channel.send('Could not leave voice channel');
+			return;
 		}
 	}
 
