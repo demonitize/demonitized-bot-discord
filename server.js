@@ -139,7 +139,7 @@ client.on("message", async msg => {
 		.split(/ +/);
 	const command = args.shift().toLowerCase();
 
-	if (msg.startsWith("<@551194918853410817>")) {
+	if (msg.content.startsWith("<@551194918853410817>")) {
 		msg.channel.send(`${msg.author} My prefix is ${prefix}. For help, please type ${prefix}help`);
 	}
 
