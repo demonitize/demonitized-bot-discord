@@ -78,7 +78,7 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.7.0",
+		"Version 1.7.2",
 		`With ${client.users.cache.size} awesome people!`,
 		"with my face mask"
 	];
@@ -87,7 +87,7 @@ client.on("ready", () => {
 		let GameActivity = responses[number];
 		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
 	};
-	
+
 	setInterval(randomizer, 10000);
 
 
@@ -503,13 +503,13 @@ client.on("message", async msg => {
 	}
 
 	function shutdown() {
-		client.guilds.cache.fetch("618236743560462356").channels.cache.fetch("647527428784390164").send("Bot is going offline. ")
+		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send("Bot is now going offline. ")
 		client.destroy()
 	}
 
 	if (command === "shutdown" && config.master.includes(msg.author.id)) {
 		msg.channel.send("Shutting down.")
-		client.guilds.cache.fetch("618236743560462356").channels.cache.fetch("647527428784390164").send("Bot shutting down")
+		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot shutting down');
 		client.user.setActivity("Shutting down...", {
 			type: "PLAYING",
 			url: "https://twitch.tv/demonitized_boi"
@@ -522,7 +522,7 @@ client.on("message", async msg => {
 	}
 
 	function restart() {
-		client.guilds.cache.fetch("618236743560462356").channels.cache.fetch("647527428784390164").send("Bot is going offline. ")
+		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot is now going offline.');
 		client.destroy()
 	}
 
@@ -530,7 +530,7 @@ client.on("message", async msg => {
 		let args = msg.content.split(" ");
 		const restartTime = args[1];
 		msg.channel.send("Restarting")
-		client.guilds.cache.fetch("618236743560462356").channels.cache.fetch("647527428784390164").send("Bot restarting")
+		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot restarting...');
 		client.user.setActivity("restarting...", {
 			type: "PLAYING",
 			url: "https://twitch.tv/demonitized_boi"
@@ -560,7 +560,7 @@ client.on("message", async msg => {
 			msg.content.startsWith(prefix + "eval") &&
 			config.master.includes(msg.author.id)
 		) {
-			client.guilds.cache.fetch("618236743560462356").channels.cache.fetch("647527428784390164").send("EVAL command used")
+			client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('EVAL COMMAND USED');
 			try {
 				const code = args.join(" ");
 				let evaled = eval(code);
@@ -579,9 +579,9 @@ client.on("message", async msg => {
 });
 
 client.on("guildCreate", srv => {
-	client.guilds.cache.fetch("618236743560462356").channels.cache.fetch("647527428784390164").send(`Bot added to new guild. ID: ${srv}`);
+	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send(`Bot added to new Guild. Guild id: ${srv}`);
 	guild.id.cache.fetch();
-})
+});
 
 //voice system
 
@@ -590,9 +590,9 @@ client.on("message", async m => {
 	m.author === client.user ? m.guild = null : undefined;
 	if (m.guild === null) {
 		client.guilds
-			.cache.fetch("618236743560462356")
-			.channels.cache.fetch("647527428784390164")
-			.send(`${m.author} AKA ${m.author.id} said : ${m.content} `);
+		.cache.get("618236743560462356")
+		.channels.cache.get("704045958601637918")
+		.send(`${m.author} AKA ${m.author.id} said : ${m.content} `);
 	}
 });
 client.login(loginBot);
