@@ -75,24 +75,21 @@ client.on("ready", () => {
 	// console.warn("uncomment startup message")
 
 	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
-	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`)
-
-	client.user.setPresence({ activity: { name: GameActivity, type: 'PLAYING' }, status: 'dnd' });
+	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
 		"Version 1.7.0",
 		`With ${client.users.cache.size} awesome people!`,
 		"with my face mask"
 	];
-
 	function randomizer() {
 		let number = Math.floor((Math.random() * 3) + 0);
 		return responses[number];
 	};
-
 	setInterval(randomizer, 10000)
-
 	var GameActivity = randomizer();
+	client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
+
 
 	var options = {
 		method: 'POST',
@@ -287,9 +284,9 @@ client.on("message", async msg => {
 	}
 	if (command === "forcestop" && config.owner.includes(msg.author.id)) {
 		msg.channel.send("If the bot breaks it's not my problem")
-		.then(() => {
-			client.destroy();
-		})
+			.then(() => {
+				client.destroy();
+			})
 	}
 	else if (command === "forcestop" && !config.owner.includes(msg.author.id)) {
 		msg.channel.send("Permission denied");
