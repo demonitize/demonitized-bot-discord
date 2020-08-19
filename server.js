@@ -84,11 +84,12 @@ client.on("ready", () => {
 	];
 	function randomizer() {
 		let number = Math.floor((Math.random() * 3) + 0);
-		return responses[number];
+		let GameActivity = responses[number];
+		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
 	};
-	setInterval(randomizer, 10000)
-	var GameActivity = randomizer();
-	client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
+	
+	setInterval(randomizer, 10000);
+
 
 
 	var options = {
