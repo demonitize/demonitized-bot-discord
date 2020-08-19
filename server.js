@@ -76,7 +76,7 @@ client.on("ready", () => {
 
 	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
-
+/*
 	const responses = [
 		"Version 1.7.0",
 		`With ${client.users.cache.size} awesome people!`,
@@ -89,8 +89,9 @@ client.on("ready", () => {
 	};
 
 	setInterval(randomizer, 10000);
-
-
+*/
+	
+		client.user.setPresence({ activity: { name: "FELIX WHY DID YOU ADD ME!?", type: 'PLAYING' }, status: 'dnd' });
 
 	var options = {
 		method: 'POST',
