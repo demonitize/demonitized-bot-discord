@@ -78,7 +78,7 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.7.2",
+		"Version 1.7.0",
 		`With ${client.users.cache.size} awesome people!`,
 		"with my face mask"
 	];
@@ -476,9 +476,16 @@ client.on("message", async msg => {
 	}
 
 	if (command === 'meme') {
-		const { body } = await snekfetch
-			.get('https://www.reddit.com/r/dankmemes.json?sort=top&t=week')
-			.query({ limit: 800 });
+			var options = {
+				method: 'GET',
+				url: 'https://www.reddit.com/r/dankmemes.json?sort=top&t=week'
+			};
+		
+			request(options, function (error, response, body) {
+				if (error) console.warn(new Error(error));
+				console.log(response);
+				console.log(body);
+			});
 		const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
 		if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
 		const randomnumber = Math.floor(Math.random() * allowed.length)
