@@ -42,6 +42,7 @@ const config = {
 }
 const { cpuUsage } = require('process');
 const { json } = require('express');
+const { setInterval } = require('timers');
 
 client.on('debug', info => {
 	console.log(info);
@@ -76,7 +77,22 @@ client.on("ready", () => {
 	console.log(`Logged in as ${client.user.tag} at ${new Date}`);
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`)
 
-	client.user.setPresence({ activity: { name: 'Version 1.6.5', type: 'PLAYING' }, status: 'dnd' })
+	client.user.setPresence({ activity: { name: GameActivity, type: 'PLAYING' }, status: 'dnd' });
+
+	const responses = [
+		"Version 1.7.0",
+		`With ${client.users.cache.size} awesome people!`,
+		"with my face mask"
+	];
+
+	function randomizer() {
+		let number = Math.floor((Math.random() * 3) + 0);
+		return responses[number];
+	};
+
+	setInterval(randomizer, 10000)
+
+	var GameActivity = randomizer();
 
 	var options = {
 		method: 'POST',
@@ -231,7 +247,7 @@ client.on("message", async msg => {
 	}
 
 	if (command === "leave" || command === "dc" || command === "disconnect") {
-		if (msg.author.voiceChannel && client.voiceChannel) {
+		if (msg.author.voiceChannel) {
 			msg.author.voiceChannel.leave();
 			msg.channel.send('Left the voice channel');
 		} else {
@@ -270,8 +286,10 @@ client.on("message", async msg => {
 		msg.channel.send(embed);
 	}
 	if (command === "forcestop" && config.owner.includes(msg.author.id)) {
-		msg.channel.send("If the bot breaks it's not my problem");
-		client.destroy();
+		msg.channel.send("If the bot breaks it's not my problem")
+		.then(() => {
+			client.destroy();
+		})
 	}
 	else if (command === "forcestop" && !config.owner.includes(msg.author.id)) {
 		msg.channel.send("Permission denied");
