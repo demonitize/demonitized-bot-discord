@@ -85,7 +85,7 @@ client.on("ready", () => {
 	function randomizer() {
 		let number = Math.floor((Math.random() * 3) + 0);
 		let GameActivity = responses[number];
-		client.user.setPresence({ activity: { name: `NEW DISCORD UPDATE!`, type: 'STREAMING', url: "https://www.youtube.com/watch?v=BeG5FqTpl9U" }, status: 'dnd' });
+		client.user.setPresence({ activity: { name: `I'm sorry that I let you down`, type: 'STREAMING', url: "https://www.youtube.com/watch?v=fbHbTBP_u7U" }, status: 'dnd' });
 	};
 
 	setInterval(randomizer, 10000);
