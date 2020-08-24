@@ -79,13 +79,13 @@ client.on("ready", () => {
 
 	const responses = [
 		"Version 1.7.0",
-		`With ${client.users.cache.size} awesome people!`,
-		"with my face mask"
+		`${client.users.cache.size} awesome people!`,
+		`${client.guilds.cache.size} servers.`
 	];
 	function randomizer() {
 		let number = Math.floor((Math.random() * 3) + 0);
 		let GameActivity = responses[number];
-		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'STREAMING', url: "https://www.youtube.com/watch?v=jeg_TJvkSjg" }, status: 'dnd' });
+		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'WATCHING', url: "https://www.youtube.com/watch?v=jeg_TJvkSjg" }, status: 'dnd' });
 	};
 
 	setInterval(randomizer, 10000);
