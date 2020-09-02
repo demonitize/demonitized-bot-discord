@@ -78,19 +78,19 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.7.0",
-		`${client.users.cache.size} awesome people!`,
-		`${client.guilds.cache.size} servers.`
+		"Version 1.7.2",
+		`with ${client.guilds.cache.size} servers`,
+		"around in mud"
 	];
 	function randomizer() {
 		let number = Math.floor((Math.random() * 3) + 0);
 		let GameActivity = responses[number];
-		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'WATCHING', url: "https://www.youtube.com/watch?v=jeg_TJvkSjg" }, status: 'dnd' });
+		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
 	};
 
 	setInterval(randomizer, 10000);
 
-	
+
 	var options = {
 		method: 'POST',
 		url: 'https://discordbotlist.com/api/v1/bots/551194918853410817/stats',
@@ -152,7 +152,7 @@ client.on("message", async msg => {
 		.split(/ +/);
 	const command = args.shift().toLowerCase();
 
-	if (msg.content.startsWith("<@551194918853410817>")) {
+	if (msg.content.startsWith(`<@${client.user.id}>`)) {
 		msg.channel.send(`${msg.author} My prefix is ${prefix}. For help, please type ${prefix}help`);
 	}
 
@@ -244,8 +244,12 @@ client.on("message", async msg => {
 	}
 
 	if (command === "leave" || command === "dc" || command === "disconnect") {
-		if (msg.author.voiceChannel) {
-			msg.author.voiceChannel.leave();
+		if (msg.member.voice.channel) {
+			try {
+			msg.member.voice.channel.leave();
+			} catch(err) {
+				console.warn(err)
+			}
 			msg.channel.send('Left the voice channel');
 		} else {
 			msg.channel.send('Could not leave voice channel');
@@ -292,7 +296,7 @@ client.on("message", async msg => {
 		msg.channel.send("Permission denied");
 		return;
 	}
-
+	
 	try {
 		if (command === "msg" && config.admins.includes(msg.author.id)) {
 			msg.delete()
@@ -475,16 +479,16 @@ client.on("message", async msg => {
 	}
 
 	if (command === 'meme') {
-			var options = {
-				method: 'GET',
-				url: 'https://www.reddit.com/r/dankmemes.json?sort=top&t=week'
-			};
-		
-			request(options, function (error, response, body) {
-				if (error) console.warn(new Error(error));
-				console.log(response);
-				console.log(body);
-			});
+		var options = {
+			method: 'GET',
+			url: 'https://www.reddit.com/r/dankmemes.json?sort=top&t=week'
+		};
+
+		request(options, function (error, response, body) {
+			if (error) console.warn(new Error(error));
+			console.log(response);
+			console.log(body);
+		});
 		const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
 		if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
 		const randomnumber = Math.floor(Math.random() * allowed.length)
@@ -596,9 +600,9 @@ client.on("message", async m => {
 	m.author === client.user ? m.guild = null : undefined;
 	if (m.guild === null) {
 		client.guilds
-		.cache.get("618236743560462356")
-		.channels.cache.get("704045958601637918")
-		.send(`${m.author} AKA ${m.author.id} said : ${m.content} `);
+			.cache.get("618236743560462356")
+			.channels.cache.get("704045958601637918")
+			.send(`${m.author} AKA ${m.author.id} said : ${m.content} `);
 	}
 });
 client.login(loginBot);
