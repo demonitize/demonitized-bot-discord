@@ -46,17 +46,17 @@ const { setInterval } = require('timers');
 
 client.on('debug', info => {
 	console.log(info);
-	return
+	return;
 });
 
 client.on('warn', err => {
 	console.warn(err);
-	return
+	return;
 })
 
 client.on('error', err => {
 	console.warn(err);
-	return
+	return;
 })
 
 
@@ -78,10 +78,10 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.7.5-B",
-		`with ${client.guilds.cache.size} servers`,
-		"around in mud",
-		`with ${client.users.cache.size} awesome people`,
+		"Version 1.7.5-C",
+		`With ${client.users.cache.size} awesome people!`,
+		"in mud",
+		`With ${client.guilds.cache.size} servers`,
 		"Minceraft"
 	];
 	function randomizer() {
@@ -91,7 +91,6 @@ client.on("ready", () => {
 	};
 
 	setInterval(randomizer, 10000);
-
 
 	var options = {
 		method: 'POST',
@@ -115,6 +114,18 @@ client.on("ready", () => {
 	//client.guilds.cache.fetch("guild").members.cache.fetch("user").ban({reason:""})
 	//client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
 });
+
+function errorLogger(err) {
+	var message = msg;
+	console.warn(`An exception was thrown at ${new Date}. Error: ${err}`);
+	var embed = new MessageEmbed()
+	.setColor(0xfa6800)
+	.setTitle("ERROR")
+	.setDescription("An unexpected error occurred. Error message below:")
+	.addField("Error message", "```" + err + "```")
+	.setTimestamp(new Date)
+	msg.channel.send(embed)
+}
 
 setInterval(() => {
 	var options = {
@@ -157,6 +168,10 @@ client.on("message", async msg => {
 	if (msg.content.startsWith(`<@${client.user.id}>`)) {
 		msg.channel.send(`${msg.author} My prefix is ${prefix}. For help, please type ${prefix}help`);
 	}
+
+
+
+
 
 	if (command === "k") {
 		msg.channel.send('<:GWk:742579616891273318>');
@@ -245,16 +260,17 @@ client.on("message", async msg => {
 		}
 	}
 
+
 	if (command === "leave" || command === "dc" || command === "disconnect") {
 		if (msg.member.voice.channel) {
 			try {
 			msg.member.voice.channel.leave();
 			} catch(err) {
-				console.warn(err)
+				errorLogger(err);
 			}
-			msg.channel.send('Left the voice channel');
+			msg.channel.send('Left the voice channel!');
 		} else {
-			msg.channel.send('Could not leave voice channel');
+			msg.channel.send('Error: Could not leave voice channel');
 			return;
 		}
 	}
@@ -314,7 +330,7 @@ client.on("message", async msg => {
 			return
 		}
 	} catch (error) {
-		console.log(error);
+		errorLogger(error)
 	}
 
 	//Audit log feature
@@ -333,7 +349,7 @@ client.on("message", async msg => {
 			return
 		}
 	} catch (error) {
-		console.log(error);
+		errorLogger(error)
 	}
 
 	if (command === "blacklist-add" && config.master.includes(msg.author.id)) {
@@ -344,7 +360,7 @@ client.on("message", async msg => {
 		// last three lines are totally not reused from the ??send command
 		blacklistDB.autoBlackList(user, reason);
 		msg.channel.send(`Blacklisted user: ${user} for reason: ${reason}`);
-	} else if (command === "blacklist-add" ** !config.master.includes(msg.author.id)) {
+	} else if (command === "blacklist-add" && !config.master.includes(msg.author.id)) {
 		msg.channel.send("Permission denied");
 		return;
 	}
@@ -591,8 +607,7 @@ client.on("message", async msg => {
 });
 
 client.on("guildCreate", srv => {
-	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send(`Bot added to new Guild. Guild id: ${srv}`);
-	guild.id.cache.fetch();
+	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send(`Bot added to new Guild. Guild name: ${srv}`);
 });
 
 //voice system
