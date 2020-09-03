@@ -78,13 +78,14 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.7.2",
+		"Version 1.7.5-B",
 		`with ${client.guilds.cache.size} servers`,
 		"around in mud",
-		"Titty Map by Henzoid"
+		`with ${client.users.cache.size} awesome people`,
+		"Minceraft"
 	];
 	function randomizer() {
-		let number = Math.floor((Math.random() * 4) + 0);
+		let number = Math.floor((Math.random() * 5) + 0);
 		let GameActivity = responses[number];
 		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
 	};
