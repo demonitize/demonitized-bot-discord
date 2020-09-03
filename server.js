@@ -80,10 +80,11 @@ client.on("ready", () => {
 	const responses = [
 		"Version 1.7.2",
 		`with ${client.guilds.cache.size} servers`,
-		"around in mud"
+		"around in mud",
+		"Titty Map by Henzoid"
 	];
 	function randomizer() {
-		let number = Math.floor((Math.random() * 3) + 0);
+		let number = Math.floor((Math.random() * 4) + 0);
 		let GameActivity = responses[number];
 		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
 	};
