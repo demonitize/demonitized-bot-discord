@@ -78,9 +78,9 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.7.5-C",
+		"Version 1.7.6-A",
 		`With ${client.users.cache.size} awesome people!`,
-		"in mud",
+		"Emoji fetch update coming soon!",
 		`With ${client.guilds.cache.size} servers`,
 		"Minceraft"
 	];
@@ -169,6 +169,26 @@ client.on("message", async msg => {
 		msg.channel.send(`${msg.author} My prefix is ${prefix}. For help, please type ${prefix}help`);
 	}
 
+	// Emoji command. I know this code is not going to run but I dont care because it's commented out. 
+
+
+	// if (command === "emoji-list" || command === "emojis") {
+	// 	let fetchGuilds = client.guilds;
+	// 	fetchGuilds.toString()
+	// 	fetchGuilds.forEach(server => {
+	// 		if (client.guild(server).available) {
+	// 			var jkr = [server, true];
+	// 			return jkr;
+	// 		} else {
+	// 			var jkr = [server, false];
+	// 			return jkr;
+	// 		}	
+	// 	})
+	// jkr.split(',');
+	// if (jkr[1] == true) {
+	// 	client.guilds.cache.fetch(jkr[0]).emojis.cache.array()
+	// }
+	// }
 
 
 
