@@ -78,11 +78,11 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.7.6-A",
+		"Version 1.8.9",
 		`With ${client.users.cache.size} awesome people!`,
-		"Emoji fetch update coming soon!",
+		"I NEED @SOMEONE",
 		`With ${client.guilds.cache.size} servers`,
-		"Minceraft"
+		"Mindustry"
 	];
 	function randomizer() {
 		let number = Math.floor((Math.random() * 5) + 0);
