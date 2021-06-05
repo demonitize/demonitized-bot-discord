@@ -1,9 +1,17 @@
-const { Client, MessageEmbed } = require('discord.js');
+const {
+	Client,
+	MessageEmbed
+} = require('discord.js');
 const ytdl = require("ytdl-core");
 const events = require('events');
 const eventEmitter = new events.EventEmitter();
 const snekfetch = require('snekfetch');
-const client = new Client({ shardCount: 1 });
+const client = new Client({
+	shardCount: 1,
+	messageCacheLifetime: 600,
+	messageSweepInterval: 43200
+});
+
 const prefix = "??";
 const fs = require("fs");
 const request = require('request');
@@ -11,39 +19,33 @@ require('dotenv').config();
 const loginBot = process.env.SECRET;
 const escapeRegex = str => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 var broadcast = client.voice.createBroadcast();
-const blacklistDB = require('./db.js');
+const blacklistDB = require('./sql.js');
 const ytsr = require("ytsr");
 const arrays = require('./arrays.json');
+const packageJson = require('./package.json');
 const ytpl = require('ytpl');
-const config = {
-	"blacklisted": [
-		"409554505500459030",
-		""
-	],
-	"admins": [
-		"414602371621060629",
-		"628298193922424857",
-		"218180379088125955",
-		"332293963291557889",
-		"473986240832602133",
-		"498056180854292500"
-	],
-	"owner": [
-		"414602371621060629",
-		"628298193922424857",
-		"218180379088125955",
-		"473986240832602133"
-	],
-	"master": [
-		"414602371621060629",
-		"218180379088125955",
-		"628298193922424857",
-		"473986240832602133"
-	]
-}
-const { cpuUsage } = require('process');
-const { json } = require('express');
-const { setInterval } = require('timers');
+var dispatcher;
+const {
+	FFMPEG,
+	ffmpeg
+} = require('ffmpeg');
+const config = require('./users.json');
+const {
+	cpuUsage
+} = require('process');
+const {
+	json,
+	express
+} = require('express');
+const {
+	setInterval
+} = require('timers');
+
+var videoDuration = {
+	min: 0,
+	sec: 0
+};
+
 
 client.on('debug', info => {
 	console.log(info);
@@ -53,12 +55,14 @@ client.on('debug', info => {
 client.on('warn', err => {
 	console.warn(err);
 	return;
-})
+});
 
 client.on('error', err => {
 	console.warn(err);
 	return;
-})
+});
+
+
 
 
 client.on("ready", () => {
@@ -70,6 +74,7 @@ client.on("ready", () => {
 		.addField('GUILDS', client.guilds.cache.size, true)
 		.addField('CHANNELS', client.channels.cache.size, true)
 		.addField('MEMBERS', client.users.cache.size, true)
+		.addField('VERSION', packageJson.version, true)
 		.setTimestamp(date)
 
 	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send(embed)
@@ -79,16 +84,29 @@ client.on("ready", () => {
 	console.log(`Currently serving ${client.guilds.cache.size} guilds, with a total of ${client.channels.cache.size} channels, with ${client.users.cache.size} total users.`);
 
 	const responses = [
-		"Version 1.8.9",
-		`With ${client.users.cache.size} awesome people!`,
-		"I NEED @SOMEONE",
-		`With ${client.guilds.cache.size} servers`,
-		"Mindustry"
+		`BOT SLASH COMMANDS ARE HERE!`,
+		`Version ${packageJson.version}`,
+		`YAGPDB.xyz is a cool bot`,
+		`Everything you say`,
+		`${client.guilds.cache.size} servers`,
+		`SWEEWS`
 	];
+	var number = 0;
+
 	function randomizer() {
-		let number = Math.floor((Math.random() * 5) + 0);
+		if (number == 5) {
+			number = -1;
+		};
+		number++
 		let GameActivity = responses[number];
-		client.user.setPresence({ activity: { name: `${GameActivity}`, type: 'PLAYING' }, status: 'dnd' });
+		client.user.setPresence({
+			activity: {
+				name: `${GameActivity}`,
+				type: 'WATCHING',
+				url: 'https://twitch.tv/quimbly3'
+			},
+			status: 'dnd'
+		});
 	};
 
 	setInterval(randomizer, 10000);
@@ -96,18 +114,20 @@ client.on("ready", () => {
 	var options = {
 		method: 'POST',
 		url: 'https://discordbotlist.com/api/v1/bots/551194918853410817/stats',
-		headers:
-		{
+		headers: {
 			'cache-control': 'no-cache',
 			'content-type': 'application/x-www-form-urlencoded',
 			authorization: process.env.UPDATE_TOKEN
 		},
-		form: { guilds: client.guilds.cache.size, users: client.users.cache.size }
+		form: {
+			guilds: client.guilds.cache.size,
+			users: client.users.cache.size
+		}
 	};
 
 	request(options, function (error, response, body) {
 		if (error) console.warn(new Error(error));
-		console.log(response);
+		// console.log(response);
 		console.log(body);
 	});
 
@@ -116,15 +136,16 @@ client.on("ready", () => {
 	//client.guilds.cache.fetch("guild").members.cache.fetch("user").kick({reason:""})
 });
 
+
 function errorLogger(err) {
 	var message = msg;
 	console.warn(`An exception was thrown at ${new Date}. Error: ${err}`);
-	var embed = new MessageEmbed()
-	.setColor(0xfa6800)
-	.setTitle("ERROR")
-	.setDescription("An unexpected error occurred. Error message below:")
-	.addField("Error message", "```" + err + "```")
-	.setTimestamp(new Date)
+	embed = new MessageEmbed()
+		.setColor(0xfa6800)
+		.setTitle("ERROR")
+		.setDescription("An unexpected error occurred. Error message below:")
+		.addField("Error message", "```" + err + "```")
+		.setTimestamp(new Date)
 	msg.channel.send(embed)
 }
 
@@ -132,13 +153,15 @@ setInterval(() => {
 	var options = {
 		method: 'POST',
 		url: 'https://discordbotlist.com/api/v1/bots/551194918853410817/stats',
-		headers:
-		{
+		headers: {
 			'cache-control': 'no-cache',
 			'content-type': 'application/x-www-form-urlencoded',
 			authorization: process.env.UPDATE_TOKEN
 		},
-		form: { guilds: client.guilds.cache.size, users: client.users.cache.size }
+		form: {
+			guilds: client.guilds.cache.size,
+			users: client.users.cache.size
+		}
 	};
 
 	request(options, function (error, response, body) {
@@ -149,16 +172,34 @@ setInterval(() => {
 
 }, 900000);
 
+client.on(`guildMemberAdd`, onGuildJoin);
+
+function onGuildJoin(member) {
+	if (member.user.bot) return;
+	if (member.guild.id == `676949569908506624`) {
+		let channel = client.guilds.cache.get(`676949569908506624`).channels.cache.get(`677308073047490610`);
+		embed = new MessageEmbed()
+			.setColor(0xfa6800)
+			.setTitle(`Member Join`)
+			.setDescription(`Welcome to **${client.guilds.cache.get('676949569908506624').name}** ${member}!`)
+			.setTimestamp(new Date);
+		channel.send(embed);
+		member.edit({
+			roles: [708545200921903166],
+			reason: `Member joined server. Auto assigned Unverified role.`
+		});
+	}
+}
+
 client.on("message", async msg => {
 
 	if (!msg.guild) return;
 	if (!msg.content.startsWith(prefix)) return;
 	if (msg.author.bot) return;
 	const prefixRegex = new RegExp(
-		`^(<@!?${client.user.id}>|${escapeRegex(prefix)})\\s*`
+		`^(${escapeRegex(prefix)})\\s*`
 	);
 	if (!prefixRegex.test(msg.content)) return;
-
 	const matchedPrefix = msg.content.match(prefixRegex);
 	const args = msg.content
 		.slice(matchedPrefix.length)
@@ -166,9 +207,6 @@ client.on("message", async msg => {
 		.split(/ +/);
 	const command = args.shift().toLowerCase();
 
-	if (msg.content.startsWith(`<@${client.user.id}>`)) {
-		msg.channel.send(`${msg.author} My prefix is ${prefix}. For help, please type ${prefix}help`);
-	}
 
 	// Emoji command. I know this code is not going to run but I dont care because it's commented out. 
 
@@ -193,439 +231,542 @@ client.on("message", async msg => {
 
 
 
+	switch (command) {
+		case 'apply':
+			if (msg.guild.id == `453600574554767370`) {
 
-	if (command === "k") {
-		msg.channel.send('<:GWk:742579616891273318>');
+			}
+			break;
+		case 'lockdown':
+			if (config.owner.includes(msg.author.id)) {
+				msg.delete();
+				embed = new MessageEmbed()
+					.setColor(0xfa6800)
+					.setTitle("CHANNEL LOCKDOWN")
+					.setDescription("This channel is now locked down.")
+					.addField("Reason", "```" + "Roblox Verify bot is broken. Use <#708548941251215421> and react instead" + "```")
+					.setTimestamp(new Date);
+				msg.channel.send(embed)
+			}
+			break;
+		case 'k':
+			msg.channel.send('<:GWk:742579616891273318>'); // this is just a fancy letter K
+			break;
+		case 'gandalf':
+			msg.channel.send(`<a:gandalf:815757062260260874>`);
+			break;
+		case 'poglin':
+			msg.channel.send(`<:poglin:815773920820068402>`);
+			break;
+		case 'pause':
+		case 'stop':
+
+			break;
+		case 'resume':
+		case 'continue':
+
+			break;
+		case 'p':
+		case 'play':
+			let args = msg.content.split(` `);
+			console.log('PLAY COMMAND USED');
+			let query = args[1]
+			if (!msg.member.voice.channel) {
+				msg.channel.send(`${msg.author} You have to join a voice channel to use music commands.`);
+				return;
+			}
+			ytPLAY(query)
+			break;
+		case 'dc':
+		case 'disconnect':
+		case 'leave':
+			if (msg.member.voice.channel) {
+				try {
+					msg.member.voice.channel.leave();
+				} catch (err) {
+					errorLogger(err);
+				}
+				msg.channel.send('Left the voice channel!');
+			} else {
+				msg.channel.send('Error: Could not leave voice channel');
+				return;
+			}
+			break;
+		case 'members':
+		case 'membercount':
+			msg.channel.send(`Current member count: ${msg.guild.memberCount}`);
+			break;
+		case 'stats':
+		case 'status':
+		case 'info':
+			let date = new Date();
+			embed = new MessageEmbed()
+				.setColor(0x0b01105)
+				.setTitle('BOT STATS')
+				.setDescription(`The bot currently has the following stats`)
+				.addField('TOTAL GUILDS', client.guilds.cache.size, true)
+				.addField('TOTAL CHANNELS', client.channels.cache.size, true)
+				.addField('TOTAL MEMBERS', client.users.cache.size, true)
+				.setTimestamp(date);
+			msg.channel.send(embed);
+			break;
+		case 'help':
+			embed = new MessageEmbed()
+				.setTitle(`COMMANDS`)
+				.setColor(0xff0000)
+				.addField(`??play`, `Used to play a song from youtube.`, false)
+				.addField(`??dc`, `Makes the bot disconnect from your voice channel.`, false)
+				.addField(`??help`, `Brings up this menu.`, false)
+				.addField(`??nsfw`, `This is a Christian Minecraft Server we don't do that here`, false)
+				.addField(`??forcestop`, `Used to forcefully crash the bot in case it breaks (You can't use this command)`, false)
+				.addField(`??stats`, `Displays bot status`, false)
+				.addField(`??membercount`, `Displays the amount of members in your current server`, false);
+			msg.channel.send(embed);
+			break;
+		case 'forcestop':
+			if (config.owner.includes(msg.author.id)) {
+				msg.channel.send("Force stopping bot.")
+					.then(() => {
+						client.destroy();
+					})
+			} else if (!config.owner.includes(msg.author.id)) {
+				msg.channel.send("Permission denied");
+				return;
+			}
+			break;
+		case 'msg':
+			try {
+				if (config.admins.includes(message.author.id)) {
+					message.delete()
+					let args = message.content.split(" ");
+					let memberToDm = client.users.fetch(args[1]);
+					let dmMsg = args.splice(0, 2);
+					dmMsg = args.join(" ");
+					memberToDm.send(`${dmMsg}`);
+					console.log("msg command used");
+				} else if (!config.admins.includes(msg.author.id)) {
+					message.channel.send("Permission denied")
+					return
+				}
+			} catch (error) {
+				errorLogger(error)
+			}
+			break;
+		case 'send':
+			try {
+				if (config.admins.includes(msg.author.id)) {
+					let args = msg.content.split(" ");
+					let channel = client.channels.cache.fetch(args[1]);
+					let chanMsg = args.splice(0, 2);
+					chanMsg = args.join(" ");
+					channel.send(chanMsg);
+					console.log("Send command used");
+					//Audit Log feature?
+				} else if (!config.admins.includes(msg.author.id)) {
+					msg.channel.send("Permission denied")
+					return
+				}
+			} catch (error) {
+				errorLogger(error)
+			}
+			break;
+		case 'ban':
+			if (config.admins.includes(msg.author.id) || client.user.fetch(msg.author.id).hasPermission('BAN_MEMBERS')) {
+				// const userGuild = msg.guild.cache.fetch
+				let args = msg.content.split(" ");
+				let chanMsg = args.splice(0, 2);
+				chanMsg = args.join(" ");
+				let member = args[1];
+				let BanReason = args[2];
+				msg.guild.members.cache.fetch(`${member}`).ban({
+					reason: `${BanReason}`
+				});
+
+			} else if (command === "ban" && !config.admins.includes(msg.author.id)) {
+				msg.channel.send("Permission denied");
+				return;
+			}
+			break;
+		case 'kick':
+			if (config.admins.includes(msg.author.id) || client.user.fetch(msg.author.id).hasPermission('KICK_MEMBERS')) {
+				// const userGuild = msg.guild.cache.fetch
+				let args = msg.content.split(" ");
+				let member = args[1];
+				let KickReason = args[2];
+				msg.guild.members.cache.fetch(`${member}`).kick({
+					reason: `${KickReason}`
+				})
+			} else if (command === "kick" && !config.admins.includes(msg.author.id)) {
+				msg.channel.send("Permission denied");
+				return;
+			}
+			break;
+		case 'nsfw':
+		case 'porn':
+			msg.channel.send(`Hey ${msg.author}, keep it PG.`);
+			break;
+		case 'meme':
+			// memeCmd();
+			break;
+		case `debug`:
+			if (config.master.includes(msg.author.id)) {
+				let args = msg.content.split(" ");
+				let cmd = args[1];
+				switch (cmd) {
+					case `clean-cache`:
+						client.sweepMessages();
+						msg.channel.send(`Successfully removed all data from the cache.`);
+						break;
+				}
+			}
 	}
 
-	if (command === "play") {
-		let args = msg.content.split(`${prefix}play`);
-		console.log('PLAY COMMAND USED');
-		let query = args[1];
-		if (!msg.member.voice.channel) {
-			msg.channel.send(`${msg.author} You have to join a voice channel to use music commands.`);
-			return;
-		}
-		if (ytdl.validateURL(query)) {
-			console.log('URL VALID');
+	function ytPLAY(query) {
+		var stream;
+		videoDuration.min = 0;
+		videoDuration.sec = 0;
+		if (ytdl.validateID(query) || ytdl.validateURL(query)) {
+			console.log('ID VALID');
 			msg.member.voice.channel
 				.join()
 				.then(connection => {
-					const stream = ytdl(query, { filter: "audioonly" });
-					const dispatcher = connection.play(stream);
+					stream = ytdl(query, {
+						filter: "audioonly"
+					});
+					dispatcher = connection.play(stream);
 
 					ytdl.getInfo(query).then(data => {
-						var videoInfo = data.videoDetails.title
-						var videoURL = data.videoDetails.videoId
-						var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
-
-						var embed = new MessageEmbed()
-							.setTitle('YouTube Player')
-							.setDescription(`Now playing: ${videoInfo}`)
-							.setThumbnail(videoTumbnail)
+						let videoInfo = data.videoDetails.title;
+						let videoAuthor = data.videoDetails.author;
+						let videoURL = data.videoDetails.videoId;
+						let videoTumbnail = data.videoDetails.thumbnails[0].url;
+						let videoDurationString = data.videoDetails.lengthSeconds;
+						let videoDurationInt = parseInt(videoDurationString);
+						while (videoDurationInt >= 60) {
+							videoDuration.min++;
+							videoDurationInt = videoDurationInt - 60;
+						};
+						if (videoDurationInt < 10) {
+							videoDuration.sec = `0${videoDurationInt}`
+						} else {
+							videoDuration.sec = videoDurationInt;
+						}
+						embed = new MessageEmbed()
+							.setColor(0x0b01105)
+							.setTitle('Now Playing:')
+							.addField("Song Name", `${videoInfo}`, true)
+							.addField("Author", `${videoAuthor.name}`, true)
+							.addField("Duration", `${videoDuration.min}:${videoDuration.sec}`, true)
 							.setURL(`https://youtube.com/watch?v=${videoURL}`)
+							.setThumbnail(videoTumbnail)
 							.setTimestamp(new Date)
-						msg.channel.send(embed)
+							.setAuthor(`Using YTDL version 4.5.0`, `https://cdn.discordapp.com/avatars/551194918853410817/4816379c6f2228417b945a0a12fac407.png?size=128`)
+						msg.channel.send(embed);
 					})
 				})
-		} else if (!ytdl.validateURL(query)) {
-			console.log('URL NOT VALID')
+		} else {
+			console.log('ID NOT VALID');
 			let filter;
 			ytsr.getFilters(`${query}`, function (err, filters) {
-				if (err) throw err;
+				console.log("Fetching filters");
+				if (err) console.warn(err);
 				filter = filters.get('Type').find(o => o.name === 'Video');
 				ytsr.getFilters(filter.ref, function (err, filters) {
-					if (err) throw err;
+					if (err) console.warn(err);
 					filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
-					var options = {
+					let options = {
 						limit: 5,
 						nextpageRef: filter.ref,
 					}
 					ytsr(`${query}`, options, function (err, searchResults) {
-
-						if (err) {
-							console.warn(err);
-							msg.channel.send(`An unexpected error has occurred. ${err}`);
-							return
-						}
-
-						var newLink = searchResults.items[0].link;
+						console.log(`Results Fetched! ${searchResults.items}`);
+						if (err) console.warn(err);
+						let newLink = searchResults.items[0].link;
 						msg.member.voice.channel
 							.join()
 							.then(connection => {
 
-								const stream = ytdl(newLink, { filter: "audioonly" });
-								const dispatcher = connection.play(stream);
+								stream = ytdl(newLink, {
+									filter: "audioonly"
+								});
+								dispatcher = connection.play(stream);
 
 								ytdl.getInfo(newLink).then(data => {
-									var videoInfo = data.videoDetails.title
-									var videoURL = data.videoDetails.videoId
-									var videoTumbnail = data.videoDetails.thumbnail.thumbnails[0].url
+									let videoInfo = data.videoDetails.title;
+									let videoAuthor = data.videoDetails.author;
+									let videoURL = data.videoDetails.videoId;
+									let videoTumbnail = data.videoDetails.thumbnails[0].url;
+									let videoDurationString = data.videoDetails.lengthSeconds;
+									let videoDurationInt = parseInt(videoDurationString);
+									while (videoDurationInt >= 60) {
+										videoDuration.min++;
+										videoDurationInt = videoDurationInt - 60;
+									};
+									if (videoDurationInt < 10) {
+										videoDuration.sec = `0${videoDurationInt}`
+									} else {
+										videoDuration.sec = videoDurationInt;
+									}
 
-									var embed = new MessageEmbed()
-										.setTitle('YouTube Player')
-										.setDescription(`Now playing: ${videoInfo}`)
+									embed = new MessageEmbed()
+										.setColor(0x0b01105)
+										.setTitle('Now Playing:')
+										.addField("Song Name", `${videoInfo}`, true)
+										.addField("Author", `${videoAuthor.name}`, true)
+										.addField("Duration", `${videoDuration.min}:${videoDuration.sec}`, true)
 										.setURL(`https://youtube.com/watch?v=${videoURL}`)
 										.setThumbnail(videoTumbnail)
-										.setTimestamp(new Date)
-									msg.channel.send(embed)
+										.setTimestamp(new Date);
+									msg.channel.send(embed);
 								})
 							})
 					})
 				});
 			});
-		} else {
-			console.log('UNKNOWN ERROR')
-			msg.channel.send('An error occurred. Please try again.');
-			return;
 		}
-	}
 
 
-	if (command === "leave" || command === "dc" || command === "disconnect") {
-		if (msg.member.voice.channel) {
-			try {
-			msg.member.voice.channel.leave();
-			} catch(err) {
-				errorLogger(err);
-			}
-			msg.channel.send('Left the voice channel!');
-		} else {
-			msg.channel.send('Error: Could not leave voice channel');
-			return;
-		}
-	}
+
+		// Blacklist system is not stable.
+
+		// if (command === "blacklist-add" && config.master.includes(msg.author.id)) {
+		// 	let args = msg.content.split(" ");
+		// 	let user = args[1];
+		// 	let reason = args.splice(0, 2);
+		// 	reason = args.join(" ")
+		// 	// last three lines are totally not reused from the ??send command
+		// 	blacklistDB.autoBlackList(user, reason);
+		// 	msg.channel.send(`Blacklisted user: ${user} for reason: ${reason}`);
+		// } else if (command === "blacklist-add" && !config.master.includes(msg.author.id)) {
+		// 	msg.channel.send("Permission denied");
+		// 	return;
+		// }
+
+		// if (command === "blacklist-remove" && config.master.includes(msg.author.id)) {
+		// 	let args = msg.content.split(" ");
+		// 	let user = args[1];
+		// } else if (command === "blacklist-remove" && !config.master.includes(msg.author.id)) {
+		// 	msg.channel.send("Permission denied");
+		// 	return;
+		// }
+
+		// Warn command is unstable.
 
 
-	if (command === "membercount" || command === "members") {
-		msg.channel.send(`Current member count: ${msg.guild.memberCount}`)
-	}
+		// if (command === "warn" && config.master.includes(msg.author.id)) {
+		// 	msg.delete()
+		// 	let args = msg.content.split(" ");
+		// 	let punishInfo = args.splice(0, 3);
+		// 	// punishInfo = args.join(" ");
+		// 	let member = args[1]
+		// 	let warnReason = args[2]
+		// 	msg.channel.send(`Warned <@${member}> for: ${warnReason}.`)
+		// 	let userMsg = `You were warned on ${msg.guild.name} for: ${warnReason}. This punishment was executed by ${msg.author.id}`;
+		// 	client.users.cache.fetch(`${member}`).send(`${userMsg}`);
+		// } else if (command === "warn" && !config.master.includes(msg.author.id)) {
+		// 	msg.channel.send("Permission denied")
+		// 	return
+		// }
 
-	if (command === "stats") {
-		var date = new Date()
-		var embed = new MessageEmbed()
-			.setColor(0x0b01105)
-			.setTitle('BOT STATS')
-			.setDescription(`The bot currently has the following stats`)
-			.addField('TOTAL GUILDS', client.guilds.cache.size, true)
-			.addField('TOTAL CHANNELS', client.channels.cache.size, true)
-			.addField('TOTAL MEMBERS', client.users.cache.size, true)
-			.setTimestamp(date)
-		msg.channel.send(embed)
-	}
 
-	if (command === "help") {
-		const embed = new MessageEmbed()
-			.setTitle('COMMANDS')
-			.setColor(0xff0000)
-			.addField('??play', "Used to play a song from youtube.", false)
-			.addField('??meme', "Used to get a meme from reddit. [BROKEN CURRENTLY]", false)
-			.addField('??forcestop', "Used to crash the bot in case it breaks", false)
-			.addField('??stats', "Displays bot status", false)
-			.addField('??membercount', "Displays the amount of members in your current server", false)
-		msg.channel.send(embed);
-	}
-	if (command === "forcestop" && config.owner.includes(msg.author.id)) {
-		msg.channel.send("If the bot breaks it's not my problem")
-			.then(() => {
-				client.destroy();
-			})
-	}
-	else if (command === "forcestop" && !config.owner.includes(msg.author.id)) {
-		msg.channel.send("Permission denied");
-		return;
-	}
-	
-	try {
-		if (command === "msg" && config.admins.includes(msg.author.id)) {
-			msg.delete()
-			let args = msg.content.split(" ");
-			let memberToDm = client.users.cache.fetch(args[1]);
-			let dmMsg = args.splice(0, 2);
-			dmMsg = args.join(" ");
-			memberToDm.send(`${dmMsg}`);
-			console.log("msg command used");
-		}
-		else if (command === "msg" && !config.admins.includes(msg.author.id)) {
-			msg.channel.send("Permission denied")
+
+		// if (command === "unban") {
+		//   const userGuild = msg.guild.cache.fetch
+		//   let args = msg.content.split(" ");
+		//   const member = args[1];
+		//   const UnbanReason = args[2]
+		//    guild.members.unban(`${member}`, {reason:`${UnbanReason}`})
+		// }
+
+
+
+		if (command === "pl") {
 			return
-		}
-	} catch (error) {
-		errorLogger(error)
-	}
 
-	//Audit log feature
-	try {
-		if (command === "send" && config.admins.includes(msg.author.id)) {
-			let args = msg.content.split(" ");
-			let channel = client.channels.cache.fetch(args[1]);
-			let chanMsg = args.splice(0, 2);
-			chanMsg = args.join(" ");
-			channel.send(chanMsg);
-			console.log("Send command used");
-			//Audit Log feature?
-		}
-		else if (command === "send" && !config.admins.includes(msg.author.id)) {
-			msg.channel.send("Permission denied")
-			return
-		}
-	} catch (error) {
-		errorLogger(error)
-	}
+			// command not yet stable 
+			const streamOptions = {
+				seek: 0,
+				volume: 1
+			};
+			let args = msg.content.split(`${prefix}pl`);
+			let plist = args[1];
 
-	if (command === "blacklist-add" && config.master.includes(msg.author.id)) {
-		let args = msg.content.split(" ");
-		let user = args[1];
-		let reason = args.splice(0, 2);
-		reason = args.join(" ")
-		// last three lines are totally not reused from the ??send command
-		blacklistDB.autoBlackList(user, reason);
-		msg.channel.send(`Blacklisted user: ${user} for reason: ${reason}`);
-	} else if (command === "blacklist-add" && !config.master.includes(msg.author.id)) {
-		msg.channel.send("Permission denied");
-		return;
-	}
+			ytpl(`${plist}`, function (err, playlist) {
+				if (err) {
+					console.warn(err);
+					msg.channel.send('An error occurred');
+					return;
+				}
 
-	if (command === "blacklist-remove" && config.master.includes(msg.author.id)) {
-		let args = msg.content.split(" ");
-		let user = args[1];
-	} else if (command === "blacklist-remove" && !config.master.includes(msg.author.id)) {
-		msg.channel.send("Permission denied");
-		return;
-	}
+				var nextPlay = 0
 
-	if (command === "website") {
-		msg.channel.send("https://demonitized-bot-website.glitch.me");
-	}
-	if (command === "disconnect") {
-		client.leaveVoiceChannel(msg.author.voiceChannel)
-	}
+				var plistLength = playlist.total_items;
+				var query = playlist.items[nextPlay].id;
 
-	if (command === "warn" && config.master.includes(msg.author.id)) {
-		msg.delete()
-		let args = msg.content.split(" ");
-		let punishInfo = args.splice(0, 3);
-		// punishInfo = args.join(" ");
-		let member = args[1]
-		let warnReason = args[2]
-		msg.channel.send(`Warned <@${member}> for: ${warnReason}.`)
-		let userMsg = `You were warned on ${msg.guild.name} for: ${warnReason}. This punishment was executed by ${msg.author.id}`;
-		client.users.cache.fetch(`${member}`).send(`${userMsg}`);
-	} else if (command === "warn" && !config.master.includes(msg.author.id)) {
-		msg.channel.send("Permission denied")
-		return
-	}
+				playlistNext()
 
-	if (command === "ban" && config.admins.includes(msg.author.id)) {
-		// const userGuild = msg.guild.cache.fetch
-		let args = msg.content.split(" ");
-		let chanMsg = args.splice(0, 2);
-		chanMsg = args.join(" ");
-		const member = args[1];
-		const BanReason = args[2];
-		msg.guild.members.cache.fetch(`${member}`).ban({ reason: `${BanReason}` });
+				function playlistNext() {
 
-	} else if (command === "ban" && !config.admins.includes(msg.author.id)) {
-		msg.channel.send("Permission denied")
-		return
-	}
-
-	// if (command === "unban") {
-	//   const userGuild = msg.guild.cache.fetch
-	//   let args = msg.content.split(" ");
-	//   const member = args[1];
-	//   const UnbanReason = args[2]
-	//    guild.members.unban(`${member}`, {reason:`${UnbanReason}`})
-	// }
-
-	if (command === "kick" && config.admins.includes(msg.author.id)) {
-		// const userGuild = msg.guild.cache.fetch
-		let args = msg.content.split(" ");
-		const member = args[1];
-		const KickReason = args[2]
-		msg.guild.members.cache.fetch(`${member}`).kick({ reason: `${KickReason}` })
-	} else if (command === "kick" && !config.admins.includes(msg.author.id)) {
-		msg.channel.send("Permission denied")
-		return
-	}
-
-	if (command === "pl") {
-		return
-
-		// command not yet stable 
-		const streamOptions = { seek: 0, volume: 1 };
-		let args = msg.content.split(`${prefix}pl`);
-		let plist = args[1];
-
-		ytpl(`${plist}`, function (err, playlist) {
-			if (err) {
-				console.warn(err);
-				msg.channel.send('An error occurred');
-				return;
-			}
-
-			var nextPlay = 0
-
-			var plistLength = playlist.total_items;
-			var query = playlist.items[nextPlay].id;
-
-			playlistNext()
-			function playlistNext() {
-
-				let filter;
+					let filter;
 
 
-				ytsr.getFilters(`${query}`, function (err, filters) {
-					if (err) throw err;
-					filter = filters.get('Type').find(o => o.name === 'Video');
-					ytsr.getFilters(filter.ref, function (err, filters) {
+					ytsr.getFilters(`${query}`, function (err, filters) {
 						if (err) throw err;
-						filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
-						var options = {
-							limit: 5,
-							nextpageRef: filter.ref,
-						}
-						ytsr(`${query}`, options, function (err, searchResults) {
-
-							if (err) {
-								console.warn(err);
-								msg.channel.send(`An unexpected error has occurred. ${err}`);
-								return
+						filter = filters.get('Type').find(o => o.name === 'Video');
+						ytsr.getFilters(filter.ref, function (err, filters) {
+							if (err) throw err;
+							filter = filters.get('Duration').find(o => o.name.startsWith('Short'));
+							var options = {
+								limit: 5,
+								nextpageRef: filter.ref,
 							}
+							ytsr(`${query}`, options, function (err, searchResults) {
 
-							var ytlink = searchResults.items[0].link;
+								if (err) {
+									console.warn(err);
+									msg.channel.send(`An unexpected error has occurred. ${err}`);
+									return
+								}
 
-							msg.member.voice.channel
-								.join()
-								.then(connection => {
+								var ytlink = searchResults.items[0].link;
 
-									const stream = ytdl(ytlink, { filter: "audioonly" });
-									const dispatcher = connection.play(stream);
-									var songTitle = searchResults.items[0].title;
-									msg.channel.send(`Now playing: ${songTitle}`);
+								msg.member.voice.channel
+									.join()
+									.then(connection => {
 
-									dispatcher.on('finish', () => {
-										nextPlay + 1
-										playlistNext()
-									})
-								}).catch(console.error);
+										const stream = ytdl(ytlink, {
+											filter: "audioonly"
+										});
+										const dispatcher = connection.play(stream);
+										var songTitle = searchResults.items[0].title;
+										msg.channel.send(`Now playing: ${songTitle}`);
+
+										dispatcher.on('finish', () => {
+											nextPlay + 1
+											playlistNext()
+										})
+									}).catch(console.error);
+							});
 						});
 					});
-				});
-			}
-		})
+				}
+			})
 
+		}
+
+
+		if (command === "wegothim" || command === "we-got-him") {
+			embed = new MessageEmbed()
+				.setTitle('Ladies and gentelmen,')
+				.setColor(0xff0000)
+				.setDescription('We got him')
+				.setImage('https://media1.tenor.com/images/fe4d5ba31a04ef87422b6537377f89a2/tenor.gif')
+				.setURL('https://www.youtube.com/watch?v=6okxuiiHx2w')
+			msg.channel.send(embed);
+		}
+
+		// function shutdown() {
+		// 	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send("Bot is now going offline. ")
+		// 	client.destroy()
+		// }
+
+		// if (command === "shutdown" && config.master.includes(msg.author.id)) {
+		// 	msg.channel.send("Shutting down.")
+		// 	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot shutting down');
+		// 	client.user.setActivity("Shutting down...", {
+		// 		type: "PLAYING",
+		// 		url: "https://twitch.tv/demonitized_boi"
+		// 	});
+		// 	client.user.setStatus("idle");
+		// 	setTimeout(shutdown, 30000)
+		// } else if (command === "shutdown" && !config.master.includes(msg.author.id)) {
+		// 	msg.channel.send("Permission denied")
+		// 	return
+		// }
+
+		// function restart() {
+		// 	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot is now going offline.');
+		// 	client.destroy()
+		// }
+
+		// if (command === "restart" && config.master.includes(msg.author.id)) {
+		// 	let args = msg.content.split(" ");
+		// 	const restartTime = args[1];
+		// 	msg.channel.send("Restarting")
+		// 	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot restarting...');
+		// 	client.user.setActivity("restarting...", {
+		// 		type: "PLAYING",
+		// 		url: "https://twitch.tv/demonitized_boi"
+		// 	});
+		// 	client.user.setStatus("idle");
+		// 	setTimeout(restart, restartTime)
+		// } else if (command === "restart" && !config.master.includes(msg.author.id)) {
+		// 	msg.channel.send("Permission denied");
+		// 	return;
+		// }
+
+
+
+		client.on("message", msg => {
+			const args = msg.content.split(" ").slice(1);
+
+			const clean = text => {
+				if (typeof text === "string")
+					return text
+						.replace(/`/g, "`" + String.fromCharCode(8203))
+						.replace(/@/g, "@" + String.fromCharCode(8203));
+				else return text;
+			};
+			if (
+				msg.content.startsWith(prefix + "eval") &&
+				config.master.includes(msg.author.id)
+			) {
+				client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('EVAL COMMAND USED');
+				try {
+					const code = args.join(" ");
+					let evaled = eval(code);
+
+					if (typeof evaled !== "string")
+						evaled = require("util").inspect(evaled);
+
+					msg.channel.send(clean(evaled), {
+						code: "xl"
+					});
+				} catch (err) {
+					console.log(err);
+					msg.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``);
+				}
+			}
+		});
 	}
 
-	if (command === 'meme') {
+	function memeCmd() {
 		var options = {
 			method: 'GET',
-			url: 'https://www.reddit.com/r/dankmemes.json?sort=top&t=week'
+			url: 'https://www.reddit.com/r/softwaregore.json?sort=top&t=week'
 		};
 
 		request(options, function (error, response, body) {
 			if (error) console.warn(new Error(error));
-			console.log(response);
-			console.log(body);
+			// console.log(response);
+			// console.log(body);
+			const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
+			if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
+			const randomnumber = Math.floor(Math.random() * allowed.length)
+			embed = new MessageEmbed()
+				.setColor(0x00A2E8)
+				.setTitle(allowed[randomnumber].data.title)
+				.setDescription("Posted by: " + allowed[randomnumber].data.author)
+				.setImage(allowed[randomnumber].data.url)
+				.addField("Other info:", "Up votes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments)
+				.setFooter("Memes provided by r/softwaregore");
+			msg.channel.send(embed)
 		});
-		const allowed = msg.channel.nsfw ? body.data.children : body.data.children.filter(post => !post.data.over_18);
-		if (!allowed.length) return msg.channel.send('It seems we are out of fresh memes!, Try again later.');
-		const randomnumber = Math.floor(Math.random() * allowed.length)
-		var embed = new MessageEmbed()
-			.setColor(0x00A2E8)
-			.setTitle(allowed[randomnumber].data.title)
-			.setDescription("Posted by: " + allowed[randomnumber].data.author)
-			.setImage(allowed[randomnumber].data.url)
-			.addField("Other info:", "Up votes: " + allowed[randomnumber].data.ups + " / Comments: " + allowed[randomnumber].data.num_comments)
-			.setFooter("Memes provided by r/dankmemes")
-		msg.channel.send(embed)
+
 	}
 
-	if (command === "wegothim" || command === "we-got-him") {
-		const embed = new MessageEmbed()
-			.setTitle('Ladies and gentelmen,')
-			.setColor(0xff0000)
-			.setDescription('We got him')
-			.setImage('https://media1.tenor.com/images/fe4d5ba31a04ef87422b6537377f89a2/tenor.gif')
-			.setURL('https://www.youtube.com/watch?v=6okxuiiHx2w')
-		msg.channel.send(embed);
-	}
+})
 
-	function shutdown() {
-		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send("Bot is now going offline. ")
-		client.destroy()
-	}
-
-	if (command === "shutdown" && config.master.includes(msg.author.id)) {
-		msg.channel.send("Shutting down.")
-		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot shutting down');
-		client.user.setActivity("Shutting down...", {
-			type: "PLAYING",
-			url: "https://twitch.tv/demonitized_boi"
-		});
-		client.user.setStatus("idle");
-		setTimeout(shutdown, 30000)
-	} else if (command === "shutdown" && !config.master.includes(msg.author.id)) {
-		msg.channel.send("Permission denied")
-		return
-	}
-
-	function restart() {
-		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot is now going offline.');
-		client.destroy()
-	}
-
-	if (command === "restart" && config.master.includes(msg.author.id)) {
-		let args = msg.content.split(" ");
-		const restartTime = args[1];
-		msg.channel.send("Restarting")
-		client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('Bot restarting...');
-		client.user.setActivity("restarting...", {
-			type: "PLAYING",
-			url: "https://twitch.tv/demonitized_boi"
-		});
-		client.user.setStatus("idle");
-		setTimeout(restart, restartTime)
-	} else if (command === "restart" && !config.master.includes(msg.author.id)) {
-		msg.channel.send("Permission denied");
-		return;
-	}
-
-	if (command === "porn" || command === "nsfw") {
-		msg.channel.send(`Hey ${msg.author}, we don't do that here.`);
-	}
-
-	client.on("message", msg => {
-		const args = msg.content.split(" ").slice(1);
-
-		const clean = text => {
-			if (typeof text === "string")
-				return text
-					.replace(/`/g, "`" + String.fromCharCode(8203))
-					.replace(/@/g, "@" + String.fromCharCode(8203));
-			else return text;
-		};
-		if (
-			msg.content.startsWith(prefix + "eval") &&
-			config.master.includes(msg.author.id)
-		) {
-			client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send('EVAL COMMAND USED');
-			try {
-				const code = args.join(" ");
-				let evaled = eval(code);
-
-				if (typeof evaled !== "string")
-					evaled = require("util").inspect(evaled);
-
-				msg.channel.send(clean(evaled), { code: "xl" });
-			} catch (err) {
-				console.log(err);
-				msg.channel.send(`\`ERROR\` \`\`\`xl\n${clean(err)}\n\`\`\``);
-			}
-		}
-	});
-
-});
 
 client.on("guildCreate", srv => {
 	client.guilds.cache.get("618236743560462356").channels.cache.get("704045958601637918").send(`Bot added to new Guild. Guild name: ${srv}`);
